@@ -6291,3 +6291,197 @@ footer {
 .filters-form .btn-secondary:hover {
     background: #f1e6d3;
 }
+
+/* Banner Slider Section */
+#banner-slider {
+    position: relative;
+    height: 400px;
+    max-height: 400px;
+    overflow: hidden;
+    background: #f9f5f0;
+}
+
+.banner-slider-container {
+    position: relative;
+    width: 100%;
+    max-width: 1400px;
+    height: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.banner-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+}
+
+.banner-slide {
+    min-width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.banner-link-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.banner-image {
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    object-position: center center;
+    display: block;
+}
+
+.banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.3),
+        transparent 50%,
+        transparent 50%,
+        rgba(0, 0, 0, 0.3)
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px;
+}
+
+.banner-title {
+    font-size: 3.5rem;
+    color: white;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-family: "Playfair Display", serif;
+}
+
+.banner-description {
+    font-size: 1.3rem;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    max-width: 700px;
+}
+
+.banner-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #8b5d33;
+    z-index: 10;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.banner-nav:hover {
+    background: #8b5d33;
+    color: white;
+}
+
+.prev-banner {
+    left: 20px;
+}
+
+.next-banner {
+    right: 20px;
+}
+
+.banner-dots-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+.banner-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.banner-dot.active {
+    background: #8b5d33;
+    width: 30px;
+    border-radius: 6px;
+}
+
+.no-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    color: #666;
+    font-size: 1.2rem;
+}
+
+/* Responsive Banner */
+@media (max-width: 768px) {
+    #banner-slider {
+        height: 300px;
+        max-height: 300px;
+    }
+
+    .banner-image {
+        max-height: 300px;
+    }
+
+    .banner-title {
+        font-size: 2rem;
+    }
+
+    .banner-description {
+        font-size: 1rem;
+    }
+
+    .banner-overlay {
+        padding: 20px;
+    }
+
+    .banner-nav {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .prev-banner {
+        left: 10px;
+    }
+
+    .next-banner {
+        right: 10px;
+    }
+}

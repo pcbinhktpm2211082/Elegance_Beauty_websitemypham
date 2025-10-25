@@ -19,6 +19,9 @@
                 <a href="{{ route('admin.products.index') }}" class="text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 px-3 py-2 rounded transition duration-300">
                      Sản phẩm
                 </a>
+                <a href="{{ route('admin.banners.index') }}" class="text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 px-3 py-2 rounded transition duration-300">
+                    Banner
+                </a>
                 <a href="{{ route('admin.users.index') }}" class="text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 px-3 py-2 rounded transition duration-300">
                     Người dùng
                 </a>

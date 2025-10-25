@@ -4,14 +4,63 @@
 
 @section('content')
     <main>
-        <section id="hero">
-            <div class="hero-content">
-                <h2>Vẻ Đẹp Tinh Tế</h2>
-                <p>Khám phá bộ sưu tập mỹ phẩm cao cấp, được chế tác để làm nổi bật vẻ đẹp tự nhiên của bạn</p>
-                <div class="hero-actions">
-                    <a href="{{ route('products.index') }}" class="cta-button">Khám Phá Ngay</a>
-                    <a href="{{ route('brand.story') }}" class="cta-button secondary">Tìm hiểu thêm</a>
-                </div>
+        <!-- Banner Slider -->
+        <section id="banner-slider" class="relative">
+            <div class="banner-slider-container">
+                @if($banners && $banners->count() > 0)
+                    <div class="banner-track" id="bannerTrack">
+                        @foreach($banners as $banner)
+                            <div class="banner-slide">
+                                @if($banner->link)
+                                    <a href="{{ $banner->link }}" class="banner-link-wrapper">
+                                        <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}" class="banner-image">
+                                        @if($banner->title || $banner->description)
+                                            <div class="banner-overlay">
+                                                @if($banner->title)
+                                                    <h2 class="banner-title">{{ $banner->title }}</h2>
+                                                @endif
+                                                @if($banner->description)
+                                                    <p class="banner-description">{{ $banner->description }}</p>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </a>
+                                @else
+                                    <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}" class="banner-image">
+                                    @if($banner->title || $banner->description)
+                                        <div class="banner-overlay">
+                                            @if($banner->title)
+                                                <h2 class="banner-title">{{ $banner->title }}</h2>
+                                            @endif
+                                            @if($banner->description)
+                                                <p class="banner-description">{{ $banner->description }}</p>
+                                            @endif
+                                        </div>
+                                    @endif
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+
+                    @if($banners->count() > 1)
+                        <button class="banner-nav prev-banner" onclick="changeBanner(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="banner-nav next-banner" onclick="changeBanner(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+
+                        <div class="banner-dots-container">
+                            @foreach($banners as $index => $banner)
+                                <span class="banner-dot {{ $index === 0 ? 'active' : '' }}" onclick="goToBanner({{ $index }})"></span>
+                            @endforeach
+                        </div>
+                    @endif
+                @else
+                    <div class="no-banner">
+                        <p>Chưa có banner nào được thêm</p>
+                    </div>
+                @endif
             </div>
         </section>
 
@@ -82,6 +131,50 @@
     </main>
 
     <script>
+        // Banner slider logic
+        let currentBanner = 0;
+        const bannerTrack = document.getElementById('bannerTrack');
+        const bannerDots = document.querySelectorAll('.banner-dot');
+        const totalBanners = {{ $banners ? $banners->count() : 0 }};
+
+        function changeBanner(direction) {
+            currentBanner += direction;
+            
+            if (currentBanner < 0) {
+                currentBanner = totalBanners - 1;
+            } else if (currentBanner >= totalBanners) {
+                currentBanner = 0;
+            }
+            
+            updateBanner();
+        }
+
+        function goToBanner(index) {
+            currentBanner = index;
+            updateBanner();
+        }
+
+        function updateBanner() {
+            if (bannerTrack) {
+                const translateX = -currentBanner * 100;
+                bannerTrack.style.transform = `translateX(${translateX}%)`;
+            }
+            
+            if (bannerDots && bannerDots.length > 0) {
+                bannerDots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentBanner);
+                });
+            }
+        }
+
+        // Auto-play banner
+        if (totalBanners > 1) {
+            setInterval(() => {
+                changeBanner(1);
+            }, 5000);
+        }
+
+        // Product slider logic
         let currentSlide = 0;
         const totalSlides = {{ ceil(count($featuredProducts ?? collect()) / 4) }};
         const sliderTrack = document.querySelector('.slider-track');

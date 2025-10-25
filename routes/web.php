@@ -20,6 +20,7 @@ use App\Http\Controllers\User\ProductController as UserProductController;
 use App\Http\Controllers\Admin\VoucherController as AdminVoucherController;
 use App\Http\Controllers\User\VoucherController as UserVoucherController;
 use App\Http\Controllers\Admin\PasswordController;
+use App\Http\Controllers\Admin\BannerController;
 use Illuminate\Http\Request;
 
 
@@ -137,6 +138,7 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
     Route::resource('users', UserController::class);
+    Route::resource('banners', BannerController::class);
     Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::resource('vouchers', AdminVoucherController::class)->except(['show']);
 
