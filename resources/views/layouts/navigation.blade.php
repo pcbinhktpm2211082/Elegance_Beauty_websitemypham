@@ -11,25 +11,25 @@
             <!-- Menu căn giữa -->
             <div class="flex-grow flex justify-center space-x-8">
                 <a href="{{ route('admin.dashboard') }}" class="text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 px-3 py-2 rounded transition duration-300">
-                    Thống kê – báo cáo doanh thu
+                    Thống kê – báo cáo 
                 </a>
                 <a href="{{ route('admin.categories.index') }}" class="text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 px-3 py-2 rounded transition duration-300">
-                    Quản lý danh mục
+                     Danh mục
                 </a>
                 <a href="{{ route('admin.products.index') }}" class="text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 px-3 py-2 rounded transition duration-300">
-                    Quản lý Sản phẩm
+                     Sản phẩm
                 </a>
                 <a href="{{ route('admin.users.index') }}" class="text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 px-3 py-2 rounded transition duration-300">
-                    Quản lý Người dùng
+                    Người dùng
                 </a>
                 <a href="{{ route('admin.orders.index') }}" class="text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 px-3 py-2 rounded transition duration-300">
-                    Quản lý Đơn hàng
+                    Đơn hàng
                 </a>
                 <a href="{{ route('admin.supports.index') }}" class="text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 px-3 py-2 rounded transition duration-300">
-                    Quản lý hỗ trợ khách hàng
+                    Hỗ trợ khách hàng
                 </a>
                 <a href="{{ route('admin.vouchers.index') }}" class="text-sm font-medium text-gray-700 hover:text-white hover:bg-blue-600 px-3 py-2 rounded transition duration-300">
-                    Quản lý mã giảm giá
+                    Mã giảm giá
                 </a>
 
             </div>
@@ -63,7 +63,7 @@
                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" 
                                role="menuitem" 
                                tabindex="-1">
-                                🔐 Đổi mật khẩu
+                                Đổi mật khẩu
                             </a>
                             
                             <!-- Đăng xuất -->
@@ -73,7 +73,7 @@
                                     class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" 
                                     role="menuitem" 
                                     tabindex="-1">
-                                    🚪 Đăng xuất
+                                    Đăng xuất
                                 </button>
                             </form>
                         </div>
