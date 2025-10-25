@@ -19,6 +19,7 @@ use App\Http\Controllers\User\PageController;
 use App\Http\Controllers\User\ProductController as UserProductController;
 use App\Http\Controllers\Admin\VoucherController as AdminVoucherController;
 use App\Http\Controllers\User\VoucherController as UserVoucherController;
+use App\Http\Controllers\Admin\PasswordController;
 use Illuminate\Http\Request;
 
 
@@ -136,6 +137,7 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
     Route::resource('users', UserController::class);
+    Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::resource('vouchers', AdminVoucherController::class)->except(['show']);
 
     Route::resource('orders', OrderController::class)->only(['index', 'show', 'destroy']);
@@ -147,6 +149,10 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::post('supports/{support}/done', [SupportController::class, 'markDone'])->name('supports.done');
     Route::post('supports/{support}/processing', [SupportController::class, 'markProcessing'])->name('supports.processing');
     Route::post('supports/{support}/cancelled', [SupportController::class, 'markCancelled'])->name('supports.cancelled');
+    
+    // Đổi mật khẩu admin
+    Route::get('password/edit', [PasswordController::class, 'edit'])->name('password.edit');
+    Route::put('password/update', [PasswordController::class, 'update'])->name('password.update');
 });
 
 require __DIR__.'/auth.php';  

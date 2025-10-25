@@ -5,6 +5,24 @@
     <!-- Tiêu đề -->
     <h1 class="text-xl font-bold text-center mb-2">Danh sách voucher</h1>
 
+    <!-- Form tìm kiếm -->
+    <div class="mb-4">
+        <form method="GET" action="{{ route('admin.vouchers.index') }}" class="flex flex-wrap gap-2 items-center">
+            <input type="text" name="search" placeholder="Tìm mã hoặc mô tả voucher..." value="{{ request('search') }}" 
+                   class="border border-gray-300 rounded px-3 py-1 flex-grow text-sm">
+
+            <button type="submit" class="px-4 py-1 bg-blue-100 text-blue-700 border border-blue-300 rounded hover:bg-blue-200 transition text-sm font-semibold">
+                Tìm kiếm
+            </button>
+            
+            @if(request('search'))
+                <a href="{{ route('admin.vouchers.index') }}" class="px-4 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
+                    🔄 Làm mới
+                </a>
+            @endif
+        </form>
+    </div>
+
     <!-- Nút thêm -->
     <div class="mb-4 text-left">
         <a href="{{ route('admin.vouchers.create') }}"
@@ -74,9 +92,11 @@
             </tbody>
         </table>
         <!-- Phân trang -->
-        <div class="mt-4">
-            {{ $vouchers->links() }}
-        </div>
+        @if($vouchers->hasPages())
+            <div class="mt-4">
+                {{ $vouchers->withQueryString()->links() }}
+            </div>
+        @endif
     </div>
 </div>
 @endsection

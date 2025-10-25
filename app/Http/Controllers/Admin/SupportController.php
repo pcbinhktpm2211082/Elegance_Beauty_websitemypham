@@ -9,10 +9,25 @@ use Illuminate\Support\Facades\Auth;
 
 class SupportController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Lấy tất cả supports từ contact form (không phân biệt created_by)
-        $supports = Support::orderByDesc('created_at')->paginate(15);
+        $search = $request->input('search');
+        $status = $request->input('status');
+        
+        $supports = Support::query()
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%")
+                      ->orWhere('title', 'like', "%{$search}%");
+                });
+            })
+            ->when($status, function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->orderByDesc('created_at')
+            ->paginate(15)
+            ->appends($request->query());
         
         return view('admin.supports.index', compact('supports'));
     }

@@ -3,7 +3,25 @@
 @section('content')
 <div class="max-w-7xl mx-auto py-6">
     <!-- Tiêu đề -->
-    <h1 class="text-xl font-bold text-center mb-4">Danh sách danh mục</h1>
+    <h1 class="text-xl font-bold text-center mb-2">Danh sách danh mục</h1>
+
+    <!-- Form tìm kiếm -->
+    <div class="mb-4">
+        <form method="GET" action="{{ route('admin.categories.index') }}" class="flex flex-wrap gap-2 items-center">
+            <input type="text" name="search" placeholder="Tìm tên danh mục..." value="{{ request('search') }}" 
+                   class="border border-gray-300 rounded px-3 py-1 flex-grow text-sm">
+
+            <button type="submit" class="px-4 py-1 bg-blue-100 text-blue-700 border border-blue-300 rounded hover:bg-blue-200 transition text-sm font-semibold">
+                Tìm kiếm
+            </button>
+            
+            @if(request('search'))
+                <a href="{{ route('admin.categories.index') }}" class="px-4 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
+                    🔄 Làm mới
+                </a>
+            @endif
+        </form>
+    </div>
 
     <!-- Nút thêm -->
     <div class="mb-4 text-left">
@@ -51,6 +69,13 @@
                 @endforeach
             </tbody>
         </table>
+
+        <!-- Phân trang -->
+        @if($categories->hasPages())
+            <div class="mt-4">
+                {{ $categories->withQueryString()->links() }}
+            </div>
+        @endif
     </div>
 </div>
 @endsection

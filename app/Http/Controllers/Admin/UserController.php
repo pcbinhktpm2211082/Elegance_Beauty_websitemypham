@@ -11,22 +11,23 @@ use Illuminate\Support\Facades\Storage;
 class UserController extends Controller
 {
     /**
-     * Danh sách người dùng + tìm kiếm + phân trang
+     * Danh sách người dùng + tìm kiếm + phân trang (chỉ hiển thị khách hàng)
      */
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $role   = $request->input('role');
+        $status = $request->input('status');
 
         $users = User::query()
+            ->where('role', 'user') // Chỉ hiển thị tài khoản khách hàng
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                       ->orWhere('email', 'like', "%{$search}%");
                 });
             })
-            ->when($role, function ($query, $role) {
-                $query->where('role', $role);
+            ->when($status !== null, function ($query, $status) {
+                $query->where('status', $status);
             })
             ->latest()
             ->paginate(10)
@@ -118,10 +119,33 @@ class UserController extends Controller
     }
 
     /**
+     * Khóa/mở khóa tài khoản
+     */
+    public function toggleStatus(User $user)
+    {
+        // Chỉ cho phép khóa/mở khóa tài khoản khách hàng
+        if ($user->role !== 'user') {
+            return redirect()->route('admin.users.index')->with('error', 'Không thể thao tác với tài khoản admin!');
+        }
+
+        $user->update([
+            'status' => !$user->status
+        ]);
+
+        $action = $user->status ? 'mở khóa' : 'khóa';
+        return redirect()->route('admin.users.index')->with('success', "Đã {$action} tài khoản {$user->name}!");
+    }
+
+    /**
      * Xóa người dùng
      */
     public function destroy(User $user)
     {
+        // Chỉ cho phép xóa tài khoản khách hàng
+        if ($user->role !== 'user') {
+            return redirect()->route('admin.users.index')->with('error', 'Không thể xóa tài khoản admin!');
+        }
+
         if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
             Storage::disk('public')->delete($user->avatar);
         }

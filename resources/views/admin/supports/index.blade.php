@@ -20,6 +20,32 @@
         </div>
     @endif
 
+    <!-- Form tìm kiếm -->
+    <div class="mb-4">
+        <form method="GET" action="{{ route('admin.supports.index') }}" class="flex flex-wrap gap-2 items-center">
+            <select name="status" class="border border-gray-300 rounded px-3 py-1 text-sm">
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>Chờ xử lý</option>
+                <option value="processing" {{ request('status')=='processing' ? 'selected' : '' }}>Đang xử lý</option>
+                <option value="completed" {{ request('status')=='completed' ? 'selected' : '' }}>Đã hoàn thành</option>
+                <option value="cancelled" {{ request('status')=='cancelled' ? 'selected' : '' }}>Đã hủy</option>
+            </select>
+
+            <input type="text" name="search" placeholder="Tìm tên, email, tiêu đề..." value="{{ request('search') }}" 
+                   class="border border-gray-300 rounded px-3 py-1 flex-grow text-sm">
+
+            <button type="submit" class="px-4 py-1 bg-blue-100 text-blue-700 border border-blue-300 rounded hover:bg-blue-200 transition text-sm font-semibold">
+                Tìm kiếm
+            </button>
+            
+            @if(request('search') || request('status'))
+                <a href="{{ route('admin.supports.index') }}" class="px-4 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
+                    🔄 Làm mới
+                </a>
+            @endif
+        </form>
+    </div>
+
     <!-- Bảng -->
     <div class="bg-white p-4 rounded shadow border overflow-x-auto">
         <table class="w-full table-auto border-collapse border border-gray-300 text-sm text-center">
@@ -104,7 +130,7 @@
         <!-- Phân trang -->
         @if($supports->hasPages())
             <div class="mt-4">
-                {{ $supports->links() }}
+                {{ $supports->withQueryString()->links() }}
             </div>
         @endif
     </div>

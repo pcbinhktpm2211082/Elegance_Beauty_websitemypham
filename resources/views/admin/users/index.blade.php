@@ -3,7 +3,44 @@
 @section('content')
 <div class="max-w-7xl mx-auto py-6">
     <!-- Tiêu đề -->
-    <h1 class="text-xl font-bold text-center mb-2">Danh sách người dùng</h1>
+    <h1 class="text-xl font-bold text-center mb-2">Quản lý khách hàng</h1>
+
+    <!-- Thông báo -->
+    @if (session('success'))
+        <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <!-- Form tìm kiếm -->
+    <div class="mb-4">
+        <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-wrap gap-2 items-center">
+            <select name="status" class="border border-gray-300 rounded px-3 py-1 text-sm">
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Hoạt động</option>
+                <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Đã khóa</option>
+            </select>
+
+            <input type="text" name="search" placeholder="Tìm tên hoặc email..." value="{{ request('search') }}" 
+                   class="border border-gray-300 rounded px-3 py-1 flex-grow text-sm">
+
+            <button type="submit" class="px-4 py-1 bg-blue-100 text-blue-700 border border-blue-300 rounded hover:bg-blue-200 transition text-sm font-semibold">
+                Tìm kiếm
+            </button>
+            
+            @if(request('search') || request('status'))
+                <a href="{{ route('admin.users.index') }}" class="px-4 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
+                    🔄 Làm mới
+                </a>
+            @endif
+        </form>
+    </div>
 
     <!-- Nút thêm -->
     <div class="mb-4 text-left">
@@ -63,6 +100,17 @@
                                    class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded hover:bg-yellow-200 transition text-xs font-medium">
                                     ✏️ Sửa
                                 </a>
+                                
+                                <!-- Nút khóa/mở khóa -->
+                                <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" 
+                                            class="inline-block px-3 py-1 {{ $user->status ? 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200' : 'bg-green-100 text-green-700 border-green-300 hover:bg-green-200' }} border rounded transition text-xs font-medium"
+                                            onclick="return confirm('Bạn có chắc chắn muốn {{ $user->status ? 'khóa' : 'mở khóa' }} tài khoản này?')">
+                                        {{ $user->status ? '🔒 Khóa' : '🔓 Mở khóa' }}
+                                    </button>
+                                </form>
+                                
                                 <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
                                       onsubmit="return confirm('Bạn có chắc chắn muốn xoá?')">
                                     @csrf

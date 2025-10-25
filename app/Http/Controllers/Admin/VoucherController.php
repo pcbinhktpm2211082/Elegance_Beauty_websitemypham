@@ -9,9 +9,21 @@ use Carbon\Carbon;
 
 class VoucherController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $vouchers = Voucher::orderByDesc('created_at')->paginate(12);
+        $search = $request->input('search');
+        
+        $vouchers = Voucher::query()
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('code', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->orderByDesc('created_at')
+            ->paginate(12)
+            ->appends($request->query());
+            
         return view('admin.vouchers.index', compact('vouchers'));
     }
 

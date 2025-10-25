@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use App\Models\Order;
+use App\Models\Product;
 
 class DashboardController extends Controller
 {
@@ -33,10 +34,13 @@ public function index()
 
         $topProducts = DB::table('order_items')
             ->join('products', 'products.id', '=', 'order_items.product_id')
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status', 'delivered')
             ->select(
                 'products.id',
                 'products.name',
-                DB::raw('SUM(order_items.quantity) as total_sold')
+                DB::raw('SUM(order_items.quantity) as total_sold'),
+                DB::raw('SUM(order_items.quantity * order_items.unit_price) as total_revenue')
             )
             ->groupBy('products.id', 'products.name')
             ->orderByDesc('total_sold')
@@ -61,12 +65,30 @@ public function index()
             return [$m => $found ? (float)$found->revenue : 0];
         });
 
+        // Tính tổng doanh thu
+        $totalRevenue = Order::where('status', 'delivered')
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->sum(DB::raw('order_items.quantity * order_items.unit_price'));
+
+        // Tính tổng đơn hàng
+        $totalOrders = Order::count();
+
+        // Tính đơn hàng thành công
+        $completedOrders = Order::where('status', 'delivered')->count();
+
+        // Tính tổng sản phẩm
+        $totalProducts = Product::count();
+
         return [
             'orderStats' => $orderStats,
             'topProducts' => $topProducts,
             'monthlyRevenue' => $monthlyRevenue,
             'year' => $year,
             'allStatuses' => $allStatuses,
+            'totalRevenue' => $totalRevenue,
+            'totalOrders' => $totalOrders,
+            'completedOrders' => $completedOrders,
+            'totalProducts' => $totalProducts,
         ];
     });
 

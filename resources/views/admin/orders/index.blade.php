@@ -13,7 +13,7 @@
                 <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>Chờ xử lý</option>
                 <option value="processing" {{ request('status')=='processing' ? 'selected' : '' }}>Đang xử lý</option>
                 <option value="shipped" {{ request('status')=='shipped' ? 'selected' : '' }}>Đang giao hàng</option>
-                <option value="delivered" {{ request('status')=='delivered' ? 'selected' : '' }}>Đã hoàn thành</option>
+                <option value="delivered" {{ request('status')=='delivered' ? 'selected' : '' }}>Đã giao hàng</option>
                 <option value="cancelled" {{ request('status')=='cancelled' ? 'selected' : '' }}>Đã hủy</option>
             </select>
 
@@ -31,7 +31,7 @@
             'pending' => 'Chờ xử lý',
             'processing' => 'Đang xử lý',
             'shipped' => 'Đang giao hàng',
-            'delivered' => 'Đã hoàn thành',
+            'delivered' => 'Đã giao hàng',
             'cancelled' => 'Đã hủy',
         ];
         
