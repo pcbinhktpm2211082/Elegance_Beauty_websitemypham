@@ -12,21 +12,41 @@ class HomeController extends Controller
     public function index()
     {
         try {
-            // Lấy banners đang hoạt động
-            $banners = Banner::where('is_active', true)
+            // Lấy banners theo vị trí
+            $leftBanners = Banner::where('is_active', true)
+                ->where('position', 'left')
                 ->orderBy('order')
                 ->get();
+
+            $rightTop = Banner::where('is_active', true)
+                ->where('position', 'right_top')
+                ->orderBy('order')
+                ->first();
+
+            $rightBottom = Banner::where('is_active', true)
+                ->where('position', 'right_bottom')
+                ->orderBy('order')
+                ->first();
 
             // Lấy 6 sản phẩm nổi bật
             $featuredProducts = Product::where('is_featured', true)->take(6)->get();
 
-            return view('user.index', compact('featuredProducts', 'banners'));
+            return view('user.index', [
+                'featuredProducts' => $featuredProducts,
+                'leftBanners' => $leftBanners,
+                'rightTop' => $rightTop,
+                'rightBottom' => $rightBottom,
+            ]);
         } catch (\Exception $e) {
             // Log lỗi và trả về view với dữ liệu rỗng
             Log::error('Error in HomeController@index: ' . $e->getMessage());
             $featuredProducts = collect();
-            $banners = collect();
-            return view('user.index', compact('featuredProducts', 'banners'));
+            return view('user.index', [
+                'featuredProducts' => $featuredProducts,
+                'leftBanners' => collect(),
+                'rightTop' => null,
+                'rightBottom' => null,
+            ]);
         }
     }
 }

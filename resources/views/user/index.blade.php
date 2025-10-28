@@ -4,64 +4,152 @@
 
 @section('content')
     <main>
-        <!-- Banner Slider -->
-        <section id="banner-slider" class="relative">
-            <div class="banner-slider-container">
-                @if($banners && $banners->count() > 0)
-                    <div class="banner-track" id="bannerTrack">
-                        @foreach($banners as $banner)
-                            <div class="banner-slide">
-                                @if($banner->link)
-                                    <a href="{{ $banner->link }}" class="banner-link-wrapper">
-                                        <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}" class="banner-image">
-                                        @if($banner->title || $banner->description)
-                                            <div class="banner-overlay">
-                                                @if($banner->title)
-                                                    <h2 class="banner-title">{{ $banner->title }}</h2>
+        <!-- Banners: Left slider + Right two static -->
+        <section id="banners-grid" class="relative">
+            <style>
+                #banners-grid{max-width:1400px;margin:0 auto;padding:50px 5%;box-sizing:border-box;background-color:#ffffff}
+                #banners-grid .banners-grid{display:flex;gap:16px;align-items:stretch;width:100%}
+                #banners-grid .left-banner{flex:2;position:relative;min-width:0}
+                #banners-grid .right-banners{flex:1;display:flex;flex-direction:column;gap:16px;min-width:0}
+                #banners-grid .banner-card{position:relative;border-radius:8px;overflow:hidden;height:100%;width:100%}
+                #banners-grid .banner-card img{width:100%;height:100%;object-fit:cover;display:block}
+                #banners-grid .banner-link{display:block;height:100%}
+                #banners-grid .banner-overlay{position:absolute;inset:auto 0 0 0;padding:12px 16px;background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.55) 100%);color:#fff}
+                #banners-grid .banner-title{margin:0;font-size:18px;font-weight:700}
+                #banners-grid .banner-description{margin:4px 0 0;font-size:14px;opacity:.9}
+                /* Left slider */
+                #banners-grid .left-slider{position:relative;height:100%}
+                #banners-grid .left-track{display:flex;transition:transform .5s ease;height:100%}
+                #banners-grid .left-slide{min-width:100%;height:100%;flex-shrink:0}
+                #banners-grid .nav-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.45);color:#fff;border:none;width:36px;height:36px;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10}
+                #banners-grid .nav-prev{left:8px}
+                #banners-grid .nav-next{right:8px}
+                /* Aspect ratios */
+                #banners-grid .left-banner .banner-card{aspect-ratio:16/9;min-height:280px}
+                #banners-grid .right-banners .banner-card{aspect-ratio:16/9;min-height:130px}
+                @media (max-width: 768px){
+                    #banners-grid{padding:30px 16px}
+                    #banners-grid .banners-grid{flex-direction:column}
+                    #banners-grid .left-banner,#banners-grid .right-banners{flex:none}
+                    #banners-grid .left-banner .banner-card{min-height:220px}
+                    #banners-grid .right-banners .banner-card{min-height:140px}
+                }
+            </style>
+            @if(($leftBanners && $leftBanners->count() > 0) || $rightTop || $rightBottom)
+                <div class="banners-grid">
+                    <div class="left-banner">
+                        <div class="banner-card">
+                            <div class="left-slider">
+                                <div class="left-track" id="leftBannerTrack">
+                                    @foreach(($leftBanners ?? collect()) as $lb)
+                                        <div class="left-slide">
+                                            @if($lb->link)
+                                                <a class="banner-link" href="{{ $lb->link }}">
+                                                    <img src="{{ asset('storage/' . $lb->image) }}" alt="{{ $lb->title }}">
+                                                    @if($lb->title || $lb->description)
+                                                        <div class="banner-overlay">
+                                                            @if($lb->title)
+                                                                <h2 class="banner-title">{{ $lb->title }}</h2>
+                                                            @endif
+                                                            @if($lb->description)
+                                                                <p class="banner-description">{{ $lb->description }}</p>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                </a>
+                                            @else
+                                                <img src="{{ asset('storage/' . $lb->image) }}" alt="{{ $lb->title }}">
+                                                @if($lb->title || $lb->description)
+                                                    <div class="banner-overlay">
+                                                        @if($lb->title)
+                                                            <h2 class="banner-title">{{ $lb->title }}</h2>
+                                                        @endif
+                                                        @if($lb->description)
+                                                            <p class="banner-description">{{ $lb->description }}</p>
+                                                        @endif
+                                                    </div>
                                                 @endif
-                                                @if($banner->description)
-                                                    <p class="banner-description">{{ $banner->description }}</p>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @if(($leftBanners->count() ?? 0) > 1)
+                                    <button class="nav-btn nav-prev" type="button" onclick="changeLeftBanner(-1)">‹</button>
+                                    <button class="nav-btn nav-next" type="button" onclick="changeLeftBanner(1)">›</button>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="right-banners">
+                        @if($rightTop)
+                            <div class="banner-card">
+                                @if($rightTop->link)
+                                    <a class="banner-link" href="{{ $rightTop->link }}">
+                                        <img src="{{ asset('storage/' . $rightTop->image) }}" alt="{{ $rightTop->title }}">
+                                        @if($rightTop->title || $rightTop->description)
+                                            <div class="banner-overlay">
+                                                @if($rightTop->title)
+                                                    <h2 class="banner-title">{{ $rightTop->title }}</h2>
+                                                @endif
+                                                @if($rightTop->description)
+                                                    <p class="banner-description">{{ $rightTop->description }}</p>
                                                 @endif
                                             </div>
                                         @endif
                                     </a>
                                 @else
-                                    <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}" class="banner-image">
-                                    @if($banner->title || $banner->description)
+                                    <img src="{{ asset('storage/' . $rightTop->image) }}" alt="{{ $rightTop->title }}">
+                                    @if($rightTop->title || $rightTop->description)
                                         <div class="banner-overlay">
-                                            @if($banner->title)
-                                                <h2 class="banner-title">{{ $banner->title }}</h2>
+                                            @if($rightTop->title)
+                                                <h2 class="banner-title">{{ $rightTop->title }}</h2>
                                             @endif
-                                            @if($banner->description)
-                                                <p class="banner-description">{{ $banner->description }}</p>
+                                            @if($rightTop->description)
+                                                <p class="banner-description">{{ $rightTop->description }}</p>
                                             @endif
                                         </div>
                                     @endif
                                 @endif
                             </div>
-                        @endforeach
+                        @endif
+                        @if($rightBottom)
+                            <div class="banner-card">
+                                @if($rightBottom->link)
+                                    <a class="banner-link" href="{{ $rightBottom->link }}">
+                                        <img src="{{ asset('storage/' . $rightBottom->image) }}" alt="{{ $rightBottom->title }}">
+                                        @if($rightBottom->title || $rightBottom->description)
+                                            <div class="banner-overlay">
+                                                @if($rightBottom->title)
+                                                    <h2 class="banner-title">{{ $rightBottom->title }}</h2>
+                                                @endif
+                                                @if($rightBottom->description)
+                                                    <p class="banner-description">{{ $rightBottom->description }}</p>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </a>
+                                @else
+                                    <img src="{{ asset('storage/' . $rightBottom->image) }}" alt="{{ $rightBottom->title }}">
+                                    @if($rightBottom->title || $rightBottom->description)
+                                        <div class="banner-overlay">
+                                            @if($rightBottom->title)
+                                                <h2 class="banner-title">{{ $rightBottom->title }}</h2>
+                                            @endif
+                                            @if($rightBottom->description)
+                                                <p class="banner-description">{{ $rightBottom->description }}</p>
+                                            @endif
+                                        </div>
+                                    @endif
+                                @endif
+                            </div>
+                        @endif
                     </div>
-
-                    @if($banners->count() > 1)
-                        <button class="banner-nav prev-banner" onclick="changeBanner(-1)">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="banner-nav next-banner" onclick="changeBanner(1)">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-
-                        <div class="banner-dots-container">
-                            @foreach($banners as $index => $banner)
-                                <span class="banner-dot {{ $index === 0 ? 'active' : '' }}" onclick="goToBanner({{ $index }})"></span>
-                            @endforeach
-                        </div>
-                    @endif
-                @else
-                    <div class="no-banner">
-                        <p>Chưa có banner nào được thêm</p>
-                    </div>
-                @endif
-            </div>
+                </div>
+            @else
+                <div class="no-banner">
+                    <p>Chưa có banner nào được thêm</p>
+                </div>
+            @endif
         </section>
 
         <section id="featured-products">
@@ -131,47 +219,21 @@
     </main>
 
     <script>
-        // Banner slider logic
-        let currentBanner = 0;
-        const bannerTrack = document.getElementById('bannerTrack');
-        const bannerDots = document.querySelectorAll('.banner-dot');
-        const totalBanners = {{ $banners ? $banners->count() : 0 }};
+        // Left banner slider
+        let currentLeftBanner = 0;
+        const leftTrack = document.getElementById('leftBannerTrack');
+        const totalLeftBanners = {{ ($leftBanners && $leftBanners->count()) ? $leftBanners->count() : 0 }};
 
-        function changeBanner(direction) {
-            currentBanner += direction;
-            
-            if (currentBanner < 0) {
-                currentBanner = totalBanners - 1;
-            } else if (currentBanner >= totalBanners) {
-                currentBanner = 0;
-            }
-            
-            updateBanner();
+        function changeLeftBanner(direction){
+            if(!leftTrack || totalLeftBanners <= 1) return;
+            currentLeftBanner += direction;
+            if(currentLeftBanner < 0){ currentLeftBanner = totalLeftBanners - 1; }
+            if(currentLeftBanner >= totalLeftBanners){ currentLeftBanner = 0; }
+            leftTrack.style.transform = `translateX(${-currentLeftBanner * 100}%)`;
         }
 
-        function goToBanner(index) {
-            currentBanner = index;
-            updateBanner();
-        }
-
-        function updateBanner() {
-            if (bannerTrack) {
-                const translateX = -currentBanner * 100;
-                bannerTrack.style.transform = `translateX(${translateX}%)`;
-            }
-            
-            if (bannerDots && bannerDots.length > 0) {
-                bannerDots.forEach((dot, index) => {
-                    dot.classList.toggle('active', index === currentBanner);
-                });
-            }
-        }
-
-        // Auto-play banner
-        if (totalBanners > 1) {
-            setInterval(() => {
-                changeBanner(1);
-            }, 5000);
+        if(totalLeftBanners > 1){
+            setInterval(() => changeLeftBanner(1), 5000);
         }
 
         // Product slider logic

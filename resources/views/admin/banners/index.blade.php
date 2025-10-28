@@ -24,6 +24,7 @@
                     <th class="border px-4 py-2">ID</th>
                     <th class="border px-4 py-2">Ảnh</th>
                     <th class="border px-4 py-2">Tiêu đề</th>
+                    <th class="border px-4 py-2">Vị trí</th>
                     <th class="border px-4 py-2">Thứ tự</th>
                     <th class="border px-4 py-2">Trạng thái</th>
                     <th class="border px-4 py-2">Thao tác</th>
@@ -41,6 +42,21 @@
                         @endif
                     </td>
                     <td class="border px-4 py-2 text-left">{{ $banner->title ?? 'Không có tiêu đề' }}</td>
+                    <td class="border px-4 py-2">
+                        @switch($banner->position)
+                            @case('left')
+                                <span class="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700 border border-blue-200">Slider trái</span>
+                                @break
+                            @case('right_top')
+                                <span class="px-2 py-1 rounded text-xs bg-purple-100 text-purple-700 border border-purple-200">Phải - Trên</span>
+                                @break
+                            @case('right_bottom')
+                                <span class="px-2 py-1 rounded text-xs bg-purple-100 text-purple-700 border border-purple-200">Phải - Dưới</span>
+                                @break
+                            @default
+                                <span class="px-2 py-1 rounded text-xs bg-gray-100 text-gray-700 border border-gray-200">Không xác định</span>
+                        @endswitch
+                    </td>
                     <td class="border px-4 py-2">{{ $banner->order }}</td>
                     <td class="border px-4 py-2">
                         @if($banner->is_active)

@@ -9,6 +9,16 @@
             @csrf
             @method('PUT')
 
+            @if ($errors->any())
+            <div class="mb-4 p-3 rounded border border-red-300 bg-red-50 text-red-700 text-sm">
+                <ul class="list-disc pl-5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tiêu đề</label>
                 <input type="text" name="title" value="{{ old('title', $banner->title) }}" 
@@ -22,9 +32,22 @@
             </div>
 
             <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Vị trí hiển thị <span class="text-red-500">*</span></label>
+                <select name="position" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="left" {{ old('position', $banner->position) === 'left' ? 'selected' : '' }}>Slider bên trái</option>
+                    <option value="right_top" {{ old('position', $banner->position) === 'right_top' ? 'selected' : '' }}>Banner phải - Trên</option>
+                    <option value="right_bottom" {{ old('position', $banner->position) === 'right_bottom' ? 'selected' : '' }}>Banner phải - Dưới</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh banner hiện tại</label>
                 @if($banner->image)
-                    <img src="{{ asset('storage/' . $banner->image) }}" alt="Banner" class="w-full max-w-md h-40 object-cover mb-2 rounded">
+                    <div class="mt-2">
+                        <img src="{{ asset('storage/' . $banner->image) }}" alt="Banner" 
+                             class="max-w-xs max-h-48 w-auto h-auto object-contain border border-gray-300 rounded shadow-sm">
+                    </div>
                 @endif
             </div>
 
