@@ -21,7 +21,9 @@ use App\Http\Controllers\Admin\VoucherController as AdminVoucherController;
 use App\Http\Controllers\User\VoucherController as UserVoucherController;
 use App\Http\Controllers\Admin\PasswordController;
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\ProductReviewController as AdminProductReviewController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\User\ProductReviewController;
 
 
 // ==================== USER ====================
@@ -39,6 +41,15 @@ Route::get('/products', function () {
 
 Route::get('/products', [UserProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [UserProductController::class, 'show'])->name('user.products.show');
+    
+    // Recommendation routes
+    Route::get('/recommendations/content-based', [\App\Http\Controllers\User\RecommendationController::class, 'contentBased'])->name('recommendations.content-based');
+    Route::get('/recommendations/view-history', [\App\Http\Controllers\User\RecommendationController::class, 'viewHistory'])->name('recommendations.view-history');
+    Route::get('/recommendations/hybrid', [\App\Http\Controllers\User\RecommendationController::class, 'hybrid'])->name('recommendations.hybrid');
+    Route::get('/recommendations/routine/{product}', [\App\Http\Controllers\User\RecommendationController::class, 'routineRecommendations'])->name('recommendations.routine');
+Route::post('/products/{product}/reviews', [ProductReviewController::class, 'store'])
+    ->middleware(['auth'])
+    ->name('user.products.reviews.store');
 
 // ==================== DEBUG ROUTES ====================
 Route::get('/debug/session', function () {
@@ -54,7 +65,18 @@ Route::get('/debug/session', function () {
 Route::middleware('web')->group(function () {
     Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
     Route::post('/contact', [ContactController::class, 'store'])->middleware(['auth','throttle:10,1'])->name('contact.store');
+    Route::post('/contact/ai-message', [ContactController::class, 'aiMessage'])
+        ->middleware(['auth','throttle:20,1'])
+        ->name('contact.ai-message');
 });
+
+// ZaloPay return & IPN (không yêu cầu đăng nhập để nhận callback)
+// Stripe payment routes
+Route::get('/payment/stripe/success/{order}', [PaymentController::class, 'stripeSuccess'])->middleware('auth')->name('payment.stripe.success');
+Route::post('/payment/stripe/webhook', [PaymentController::class, 'stripeWebhook'])->name('payment.stripe.webhook');
+
+// VNPAY payment routes
+Route::get('/payment/vnpay/return', [PaymentController::class, 'vnpayReturn'])->middleware('auth')->name('payment.vnpay.return');
 
 // ==================== LOGOUT ROUTE ====================
 Route::post('/logout', [App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])->name('logout');
@@ -91,6 +113,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [UserProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [UserProfileController::class, 'update'])->name('profile.update');
+    
+    // Skin Quiz routes
+    Route::get('/skin-quiz', [\App\Http\Controllers\User\SkinQuizController::class, 'show'])->name('skin-quiz.show');
+    Route::post('/skin-quiz', [\App\Http\Controllers\User\SkinQuizController::class, 'submit'])->name('skin-quiz.submit');
     Route::post('/profile/avatar', [UserProfileController::class, 'updateAvatar'])->name('profile.update-avatar');
     Route::get('/profile/password', [UserProfileController::class, 'changePassword'])->name('profile.password');
     Route::put('/profile/password', [UserProfileController::class, 'updatePassword'])->name('profile.update-password');
@@ -137,6 +163,7 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     // Quản lý danh mục, sản phẩm, người dùng, đơn hàng
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
+    Route::resource('product-classifications', \App\Http\Controllers\Admin\ProductClassificationController::class)->except(['show', 'create', 'edit']);
     Route::resource('users', UserController::class);
     Route::resource('banners', BannerController::class);
     Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
@@ -148,13 +175,25 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     // Hỗ trợ
     Route::get('supports', [SupportController::class, 'index'])->name('supports.index');
     Route::get('supports/{support}', [SupportController::class, 'show'])->name('supports.show');
+    Route::get('supports/{support}/messages-fragment', [SupportController::class, 'messagesFragment'])->name('supports.messages.fragment');
     Route::post('supports/{support}/done', [SupportController::class, 'markDone'])->name('supports.done');
     Route::post('supports/{support}/processing', [SupportController::class, 'markProcessing'])->name('supports.processing');
     Route::post('supports/{support}/cancelled', [SupportController::class, 'markCancelled'])->name('supports.cancelled');
+    Route::post('supports/{support}/messages', [SupportController::class, 'sendMessage'])->name('supports.messages.store');
+    // Quản lý đánh giá sản phẩm
+    Route::get('reviews', [AdminProductReviewController::class, 'index'])->name('reviews.index');
+    Route::post('reviews/{review}/reply', [AdminProductReviewController::class, 'reply'])->name('reviews.reply');
+    Route::delete('reviews/{review}', [AdminProductReviewController::class, 'destroy'])->name('reviews.destroy');
     
     // Đổi mật khẩu admin
     Route::get('password/edit', [PasswordController::class, 'edit'])->name('password.edit');
     Route::put('password/update', [PasswordController::class, 'update'])->name('password.update');
+
+    // Thông báo admin
+    Route::post('notifications/mark-all-read', [\App\Http\Controllers\AdminNotificationController::class, 'markAllRead'])
+        ->name('notifications.markAllRead');
+    Route::get('notifications/unread-count', [\App\Http\Controllers\AdminNotificationController::class, 'unreadCount'])
+        ->name('notifications.unreadCount');
 });
 
 require __DIR__.'/auth.php';  

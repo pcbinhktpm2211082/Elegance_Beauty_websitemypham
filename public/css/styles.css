@@ -168,10 +168,10 @@ nav ul li a:hover {
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
-    text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    height: 100%;
+    text-align: center;
     border: 1px solid #f1e6d3;
     position: relative;
     overflow: hidden;
@@ -225,6 +225,7 @@ nav ul li a:hover {
     -webkit-box-orient: vertical;
     overflow: hidden;
     font-family: "Playfair Display", serif;
+    flex-grow: 0;
 }
 
 .product-card p {
@@ -233,6 +234,23 @@ nav ul li a:hover {
     font-weight: 700;
     margin-bottom: 10px;
     text-shadow: 0 1px 2px rgba(139, 93, 51, 0.08);
+}
+
+.product-price-action-wrapper {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.product-price {
+    margin-bottom: 0 !important;
+    text-align: center;
+}
+
+.product-card .product-actions {
+    margin-top: 0;
 }
 
 .product-card button {

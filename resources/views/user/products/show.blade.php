@@ -165,6 +165,37 @@
                     <span class="meta-value">{{ $product->category->name ?? 'Không phân loại' }}</span>
                 </div>
             </div>
+            
+            {{-- Phân loại sản phẩm --}}
+            @if($product->classifications->isNotEmpty())
+                <div class="product-classifications" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                    <span class="meta-label" style="display: block; margin-bottom: 10px; font-weight: 600;">Phân loại:</span>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        @foreach($product->classifications as $classification)
+                            <span class="classification-tag" style="display: inline-block; padding: 6px 12px; background: {{ $classification->type == 'skin_type' ? '#dbeafe' : '#fef3c7' }}; color: {{ $classification->type == 'skin_type' ? '#1e40af' : '#92400e' }}; border-radius: 6px; font-size: 13px; font-weight: 500;">
+                                {{ $classification->name }}
+                            </span>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- Sản phẩm khác cùng mục đích (Routine) -->
+    <div class="routine-recommendations-section" style="margin-top: 60px; padding: 40px 20px; background: #ffffff; border-top: 2px solid #e5e7eb;">
+        <div class="container" style="max-width: 1200px; margin: 0 auto;">
+            <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 10px; color: #1f2937; text-align: center;">
+                🧴 Sản phẩm khác cùng mục đích (Routine)
+            </h2>
+            <p style="text-align: center; color: #6b7280; margin-bottom: 30px; font-size: 14px;">
+                Hoàn thiện quy trình chăm sóc da của bạn
+            </p>
+            <div id="routine-products-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+                <div style="text-align: center; padding: 40px; color: #6b7280;">
+                    Đang tải gợi ý...
+                </div>
+            </div>
         </div>
     </div>
     
@@ -185,9 +216,115 @@
         <div class="tab-content" id="reviews">
             <h3>Đánh giá sản phẩm</h3>
             <div class="reviews-content">
-                <p>Chưa có đánh giá nào cho sản phẩm này.</p>
+                @php
+                    $approvedReviews = $product->reviews()->with(['user','images'])
+                        ->where('is_approved', true)
+                        ->latest()
+                        ->get();
+                    $avgRating = $approvedReviews->avg('rating');
+                @endphp
+
+                @if($approvedReviews->isNotEmpty())
+                    <div class="reviews-summary" style="display:flex; align-items:center; gap:16px; padding:14px 16px; border-radius:12px; background:linear-gradient(135deg,#fef3c7,#fffbeb); border:1px solid #fde68a; margin-bottom:16px;">
+                        <div class="summary-left" style="display:flex; align-items:center; gap:14px;">
+                            <div class="avg-score" style="display:flex; flex-direction:column; align-items:flex-start;">
+                                <span class="avg-number" style="font-size:22px; font-weight:700; color:#b45309;">{{ number_format($avgRating, 1) }}</span>
+                                <span class="avg-text" style="font-size:12px; color:#92400e;">/ 5.0</span>
+                            </div>
+                            <div>
+                                <div class="avg-stars" style="color:#fbbf24; font-size:18px; letter-spacing:1px;">
+                                    @for($i=1;$i<=5;$i++)
+                                        @if($avgRating >= $i)
+                                            ★
+                                        @else
+                                            ☆
+                                        @endif
+                                    @endfor
+                                </div>
+                                <p class="total-reviews" style="font-size:13px; color:#6b7280; margin-top:2px;">
+                                    {{ $approvedReviews->count() }} đánh giá đã mua hàng
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="reviews-list" style="display:flex; flex-direction:column; gap:14px;">
+                        @foreach($approvedReviews as $review)
+                            <div class="review-item" style="padding:12px 14px; border-radius:12px; border:1px solid #e5e7eb; background:#ffffff;">
+                                <div class="review-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                    <strong class="review-user" style="font-size:13px; color:#111827;">
+                                        {{ $review->user->name ?? 'Người dùng ẩn danh' }}
+                                    </strong>
+                                    <span class="review-date" style="font-size:12px; color:#9ca3af;">
+                                        {{ $review->created_at->format('d/m/Y') }}
+                                    </span>
+                                </div>
+                                <div class="review-stars" style="color:#fbbf24; font-size:14px; margin-bottom:6px;">
+                                    @for($i=1;$i<=5;$i++)
+                                        <span class="{{ $i <= $review->rating ? 'star-filled' : 'star-empty' }}">★</span>
+                                    @endfor
+                                </div>
+                                @if($review->comment)
+                                    <p class="review-comment" style="font-size:13px; color:#374151; line-height:1.5; margin-bottom:8px;">
+                                        {{ $review->comment }}
+                                    </p>
+                                @endif
+                                @if($review->images->isNotEmpty())
+                                    <div class="review-images" style="display:flex; flex-wrap:wrap; gap:6px;">
+                                        @foreach($review->images as $image)
+                                            <img src="{{ asset('storage/'.$image->image_path) }}"
+                                                 alt="Ảnh đánh giá"
+                                                 class="review-image-thumb"
+                                                 onclick="openReviewImageModal('{{ asset('storage/'.$image->image_path) }}')"
+                                                 style="width:68px; height:68px; object-fit:cover; border-radius:8px; cursor:pointer; border:1px solid #e5e7eb;">
+                                        @endforeach
+                                    </div>
+                                @endif
+                                @if($review->admin_reply)
+                                    <div class="review-admin-reply" style="margin-top:8px; padding:8px 10px; border-radius:10px; background:#f9fafb; border:1px solid #e5e7eb;">
+                                        <div style="font-size:12px; font-weight:600; color:#111827; margin-bottom:2px;">
+                                            Phản hồi từ cửa hàng
+                                            @if($review->admin_replied_at)
+                                                @php
+                                                    $repliedAt = $review->admin_replied_at instanceof \Illuminate\Support\Carbon
+                                                        ? $review->admin_replied_at
+                                                        : \Illuminate\Support\Carbon::parse($review->admin_replied_at);
+                                                @endphp
+                                                <span style="font-size:11px; color:#9ca3af; font-weight:400; margin-left:4px;">
+                                                    ({{ $repliedAt->format('d/m/Y H:i') }})
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <div style="font-size:13px; color:#374151;">
+                                            {{ $review->admin_reply }}
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p style="font-size:13px; color:#6b7280; padding:10px 0;">Sản phẩm chưa có đánh giá.</p>
+                @endif
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Modal xem ảnh đánh giá -->
+<div id="review-image-modal"
+     style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
+    <div id="review-image-modal-box"
+         style="position:relative; max-width:90%; max-height:90%; margin:0 16px;">
+        <button type="button"
+                onclick="closeReviewImageModal()"
+                style="position:absolute; top:-32px; right:0; border:none; background:none; cursor:pointer; color:#f9fafb; font-size:22px;">
+            ✕
+        </button>
+        <img id="review-image-modal-img"
+             src=""
+             alt="Ảnh đánh giá"
+             style="max-width:100%; max-height:100%; border-radius:12px; box-shadow:0 20px 50px rgba(15,23,42,0.6); background:#111827;">
     </div>
 </div>
 
@@ -216,6 +353,20 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Variant images:', variantImages);
     console.log('All images:', allImages);
 });
+
+// Modal xem ảnh đánh giá
+function openReviewImageModal(src) {
+    const modal = document.getElementById('review-image-modal');
+    const img   = document.getElementById('review-image-modal-img');
+    if (!modal || !img) return;
+    img.src = src;
+    modal.style.display = 'flex';
+}
+
+function closeReviewImageModal() {
+    const modal = document.getElementById('review-image-modal');
+    if (modal) modal.style.display = 'none';
+}
 
 function selectVariant(variantBtn) {
     console.log('Selecting variant:', variantBtn.dataset);
@@ -527,6 +678,127 @@ function showNotification(message, type) {
     setTimeout(() => {
         notification.remove();
     }, 3000);
+    }
+</script>
+
+<!-- Phần gợi ý sản phẩm -->
+<div class="recommendations-section" style="margin-top: 60px; padding: 40px 20px; background: #f9fafb;">
+    <div class="container" style="max-width: 1200px; margin: 0 auto;">
+        <div class="recommendations-tabs" style="display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid #e5e7eb;">
+            <button class="rec-tab-btn active" onclick="loadRecommendations('content-based', this)" style="padding: 12px 24px; background: none; border: none; border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 600; cursor: pointer; font-size: 16px;">
+                💡 Gợi ý theo loại da
+            </button>
+            <button class="rec-tab-btn" onclick="loadRecommendations('view-history', this)" style="padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent; color: #6b7280; font-weight: 500; cursor: pointer; font-size: 16px;">
+                📚 Dựa trên lịch sử xem
+            </button>
+            <button class="rec-tab-btn" onclick="loadRecommendations('hybrid', this)" style="padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent; color: #6b7280; font-weight: 500; cursor: pointer; font-size: 16px;">
+                ⭐ Gợi ý tổng hợp
+            </button>
+        </div>
+        
+        <div id="recommendations-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+            <div style="text-align: center; padding: 40px; color: #6b7280;">
+                Đang tải gợi ý...
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function loadRecommendations(type, buttonElement) {
+    // Update active tab
+    document.querySelectorAll('.rec-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.borderBottomColor = 'transparent';
+        btn.style.color = '#6b7280';
+        btn.style.fontWeight = '500';
+    });
+    
+    buttonElement.classList.add('active');
+    buttonElement.style.borderBottomColor = '#3b82f6';
+    buttonElement.style.color = '#3b82f6';
+    buttonElement.style.fontWeight = '600';
+    
+    const container = document.getElementById('recommendations-container');
+    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Đang tải...</div>';
+    
+    try {
+        const response = await fetch(`/recommendations/${type}?limit=8`);
+        const data = await response.json();
+        
+        if (data.success && data.products && data.products.length > 0) {
+            container.innerHTML = data.products.map(product => {
+                const image = product.images && product.images.length > 0 
+                    ? `/storage/${product.images[0].image_path}` 
+                    : '/storage/placeholder.jpg';
+                const price = new Intl.NumberFormat('vi-VN').format(product.price);
+                
+                return `
+                    <div class="product-card" style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer;" 
+                         onclick="window.location.href='/products/${product.id}'"
+                         onmouseover="this.style.transform='translateY(-5px)'"
+                         onmouseout="this.style.transform='translateY(0)'">
+                        <img src="${image}" alt="${product.name}" style="width: 100%; height: 200px; object-fit: cover;">
+                        <div style="padding: 15px;">
+                            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #1f2937; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${product.name}</h3>
+                            <p style="font-size: 16px; font-weight: 700; color: #3b82f6; margin: 0;">${price} VNĐ</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Không có sản phẩm gợi ý</div>';
+        }
+    } catch (error) {
+        console.error('Error loading recommendations:', error);
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #f44336;">Có lỗi xảy ra khi tải gợi ý</div>';
+    }
+}
+
+// Load content-based recommendations by default
+document.addEventListener('DOMContentLoaded', function() {
+    loadRecommendations('content-based', document.querySelector('.rec-tab-btn.active'));
+    
+    // Load routine recommendations
+    loadRoutineRecommendations();
+});
+
+// Load routine recommendations
+async function loadRoutineRecommendations() {
+    const container = document.getElementById('routine-products-container');
+    const productId = {{ $product->id }};
+    
+    try {
+        const response = await fetch(`/recommendations/routine/${productId}?limit=6`);
+        const data = await response.json();
+        
+        if (data.success && data.products && data.products.length > 0) {
+            container.innerHTML = data.products.map(product => {
+                const image = product.images && product.images.length > 0 
+                    ? `/storage/${product.images[0].image_path}` 
+                    : '/storage/placeholder.jpg';
+                const price = new Intl.NumberFormat('vi-VN').format(product.price);
+                
+                return `
+                    <div class="product-card" style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer; border: 2px solid #e5e7eb;" 
+                         onclick="window.location.href='/products/${product.id}'"
+                         onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='#3b82f6';"
+                         onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#e5e7eb';">
+                        <img src="${image}" alt="${product.name}" style="width: 100%; height: 200px; object-fit: cover;">
+                        <div style="padding: 15px;">
+                            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #1f2937; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${product.name}</h3>
+                            <p style="font-size: 16px; font-weight: 700; color: #3b82f6; margin: 0;">${price} VNĐ</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Không có sản phẩm gợi ý</div>';
+        }
+    } catch (error) {
+        console.error('Error loading routine recommendations:', error);
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Không thể tải gợi ý</div>';
+    }
 }
 </script>
 @endsection

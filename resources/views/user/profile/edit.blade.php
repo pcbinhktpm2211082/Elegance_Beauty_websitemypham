@@ -96,6 +96,26 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="skin_type">Loại da</label>
+                        <select id="skin_type" name="skin_type" class="form-select @error('skin_type') error @enderror">
+                            <option value="">Chọn loại da</option>
+                            <option value="normal" {{ old('skin_type', $user->skin_type) == 'normal' ? 'selected' : '' }}>Da Thường</option>
+                            <option value="dry" {{ old('skin_type', $user->skin_type) == 'dry' ? 'selected' : '' }}>Da Khô</option>
+                            <option value="oily" {{ old('skin_type', $user->skin_type) == 'oily' ? 'selected' : '' }}>Da Dầu/Nhờn</option>
+                            <option value="combination" {{ old('skin_type', $user->skin_type) == 'combination' ? 'selected' : '' }}>Da Hỗn Hợp</option>
+                            <option value="sensitive" {{ old('skin_type', $user->skin_type) == 'sensitive' ? 'selected' : '' }}>Da Nhạy Cảm</option>
+                        </select>
+                        @error('skin_type')
+                            <span class="error-message">{{ $message }}</span>
+                        @enderror
+                        <div class="mt-2">
+                            <a href="{{ route('skin-quiz.show') }}" class="text-blue-600 hover:text-blue-800 underline text-sm">
+                                📝 Quiz Phân Loại Da
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="dob">Ngày sinh</label>
                         <input type="date" 
                                id="dob" 

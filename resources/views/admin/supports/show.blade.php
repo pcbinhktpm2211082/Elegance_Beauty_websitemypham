@@ -31,83 +31,60 @@
         </a>
     </div>
 
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Support Details -->
-    <div class="bg-white p-4 rounded shadow border mb-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4 border-b border-gray-200 pb-2">Thông tin yêu cầu hỗ trợ</h3>
+        <div class="bg-white p-4 rounded shadow border">
+            <h3 class="text-lg font-medium text-gray-900 mb-4 border-b border-gray-200 pb-2">Thông tin khách hàng</h3>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="md:col-span-1">
-                <label class="block text-sm font-medium text-gray-500 mb-1">Trạng thái</label>
                 <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-500 mb-1">Trạng thái cuộc trò chuyện</label>
                     @if($support->status == 'pending')
-                        <span class="inline-block px-3 py-1 bg-green-100 text-green-800 border border-green-300 rounded text-sm font-medium">
-                            Chờ xử lý
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-green-800 border border-green-200 rounded text-sm font-medium">
+                        <span class="h-2 w-2 rounded-full bg-green-500"></span> Chờ phản hồi
                         </span>
                     @elseif($support->status == 'processing')
-                        <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 border border-blue-300 rounded text-sm font-medium">
-                            Đang xử lý
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-800 border border-blue-200 rounded text-sm font-medium">
+                        <span class="h-2 w-2 rounded-full bg-blue-500"></span> Đang trao đổi
                         </span>
                     @elseif($support->status == 'completed')
-                        <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 border border-blue-300 rounded text-sm font-medium">
-                            Đã hoàn thành
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-800 border border-indigo-200 rounded text-sm font-medium">
+                        <span class="h-2 w-2 rounded-full bg-indigo-500"></span> Đã hoàn thành
                         </span>
                     @elseif($support->status == 'cancelled')
-                        <span class="inline-block px-3 py-1 bg-red-100 text-red-800 border border-red-300 rounded text-sm font-medium">
-                            Đã hủy
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-red-50 text-red-800 border border-red-200 rounded text-sm font-medium">
+                        <span class="h-2 w-2 rounded-full bg-red-500"></span> Đã hủy
                         </span>
                     @endif
-                </div>
             </div>
             
-            <div class="md:col-span-2">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-4 text-sm">
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Họ và tên</label>
-                        <p class="text-sm text-gray-900 bg-gray-50 p-2 rounded border">{{ $support->name }}</p>
+                    <label class="block text-gray-500 mb-1">Họ và tên</label>
+                    <p class="text-gray-900 bg-gray-50 p-2 rounded border">{{ $support->name }}</p>
                     </div>
-                    
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Email</label>
-                        <p class="text-sm text-gray-900 bg-gray-50 p-2 rounded border">{{ $support->email }}</p>
+                    <label class="block text-gray-500 mb-1">Email</label>
+                    <p class="text-gray-900 bg-gray-50 p-2 rounded border">{{ $support->email }}</p>
                     </div>
-                    
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Tiêu đề</label>
-                        <p class="text-sm text-gray-900 bg-gray-50 p-2 rounded border">{{ $support->title }}</p>
+                    <label class="block text-gray-500 mb-1">Tiêu đề</label>
+                    <p class="text-gray-900 bg-gray-50 p-2 rounded border">{{ $support->title }}</p>
                     </div>
-                    
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Ngày gửi</label>
-                        <p class="text-sm text-gray-900 bg-gray-50 p-2 rounded border">{{ $support->created_at->format('d/m/Y H:i:s') }}</p>
-                    </div>
+                    <label class="block text-gray-500 mb-1">Bắt đầu</label>
+                    <p class="text-gray-900 bg-gray-50 p-2 rounded border">{{ $support->created_at->format('d/m/Y H:i') }}</p>
                 </div>
-                
-                @if($support->updated_at != $support->created_at)
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-500 mb-1">Cập nhật lần cuối</label>
-                    <p class="text-sm text-gray-900 bg-gray-50 p-2 rounded border">{{ $support->updated_at->format('d/m/Y H:i:s') }}</p>
-                </div>
-                @endif
+                <div>
+                    <label class="block text-gray-500 mb-1">Cập nhật gần nhất</label>
+                    <p class="text-gray-900 bg-gray-50 p-2 rounded border">{{ $support->updated_at->format('d/m/Y H:i') }}</p>
             </div>
         </div>
         
-        <div class="mt-6">
-            <label class="block text-sm font-medium text-gray-500 mb-2">Nội dung tin nhắn</label>
-            <div class="bg-gray-50 p-4 rounded border">
-                <p class="whitespace-pre-wrap text-sm text-gray-900">{{ $support->message }}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Actions -->
-    <div class="bg-white p-4 rounded shadow border">
-        <h3 class="text-lg font-medium text-gray-900 mb-4 border-b border-gray-200 pb-2">Thao tác</h3>
-        
-        <div class="flex flex-wrap gap-3">
+            <div class="mt-6 space-y-3">
             @if($support->status == 'pending')
                 <form method="POST" action="{{ route('admin.supports.processing', $support) }}">
                     @csrf
-                    <button type="submit" class="inline-block px-4 py-2 bg-green-100 text-green-700 border border-green-300 rounded hover:bg-green-200 transition text-sm font-medium">
+                        <button type="submit" class="w-full px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded hover:bg-amber-100 transition text-sm font-medium">
                         ⏳ Đánh dấu đang xử lý
                     </button>
                 </form>
@@ -116,30 +93,67 @@
             @if($support->status == 'pending' || $support->status == 'processing')
                 <form method="POST" action="{{ route('admin.supports.done', $support) }}">
                     @csrf
-                    <button type="submit" class="inline-block px-4 py-2 bg-blue-100 text-blue-700 border border-blue-300 rounded hover:bg-blue-200 transition text-sm font-medium">
+                        <button type="submit" class="w-full px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-100 transition text-sm font-medium">
                         ✅ Đánh dấu hoàn thành
                     </button>
                 </form>
                 
                 <form method="POST" action="{{ route('admin.supports.cancelled', $support) }}">
                     @csrf
-                    <button type="submit" class="inline-block px-4 py-2 bg-red-100 text-red-700 border border-red-300 rounded hover:bg-red-200 transition text-sm font-medium">
-                        ❌ Hủy yêu cầu
+                        <button type="submit" class="w-full px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded hover:bg-red-100 transition text-sm font-medium">
+                            ❌ Hủy cuộc trò chuyện
                     </button>
                 </form>
             @endif
-            
-            @if($support->status == 'completed')
-                <span class="inline-block px-4 py-2 bg-blue-100 text-blue-800 border border-blue-300 rounded text-sm font-medium">
-                    ✅ Đã hoàn thành
-                </span>
-            @endif
-            
-            @if($support->status == 'cancelled')
-                <span class="inline-block px-4 py-2 bg-red-100 text-red-800 border border-red-300 rounded text-sm font-medium">
-                    ❌ Đã hủy
-                </span>
-            @endif
+            </div>
+        </div>
+
+        <!-- Chat -->
+        <div class="bg-white p-4 rounded shadow border lg:col-span-2 flex flex-col">
+            <h3 class="text-lg font-medium text-gray-900 mb-4 border-b border-gray-200 pb-2">Lịch sử tin nhắn</h3>
+
+            <div class="flex-1 overflow-y-auto mb-4 space-y-3 max-h-[450px]">
+                @forelse($messages as $message)
+                    <div class="flex {{ $message->is_admin ? 'justify-end' : 'justify-start' }}">
+                        <div class="max-w-xl rounded-2xl px-4 py-3 {{ $message->is_admin ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-900' }}">
+                            <p class="text-sm">{{ $message->message }}</p>
+                            <p class="text-xs mt-2 {{ $message->is_admin ? 'text-indigo-100' : 'text-gray-500' }}">
+                                {{ $message->is_admin ? 'Admin' : $support->name }} • {{ $message->created_at->format('d/m/Y H:i') }}
+                            </p>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center text-gray-400 py-10">
+                        Chưa có tin nhắn nào trong cuộc trò chuyện này.
+                    </div>
+                @endforelse
+            </div>
+
+            <form method="POST" action="{{ route('admin.supports.messages.store', $support) }}" class="space-y-3">
+                @csrf
+                <textarea name="message" rows="4" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="Nhập phản hồi của bạn...">{{ old('message') }}</textarea>
+                @error('message')
+                    <p class="text-sm text-red-500">{{ $message }}</p>
+                @enderror
+
+                <div class="flex flex-col md:flex-row md:items-center gap-3">
+                    <select name="status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                        <option value="">Giữ nguyên trạng thái</option>
+                        <option value="processing" {{ old('status') == 'processing' ? 'selected' : '' }}>Đang xử lý</option>
+                        <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>Đánh dấu hoàn thành</option>
+                        <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Đánh dấu chờ xử lý</option>
+                        <option value="cancelled" {{ old('status') == 'cancelled' ? 'selected' : '' }}>Đánh dấu đã hủy</option>
+                    </select>
+
+                    <button type="submit" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-500 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-9.193 5.495A.75.75 0 014.5 16.06V7.94a.75.75 0 011.059-.603l9.193 5.495a.75.75 0 010 1.297z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 5.25v13.5" />
+                        </svg>
+                        Gửi phản hồi
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

@@ -34,9 +34,17 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        Category::create([
+        $category = Category::create([
             'name' => $request->name,
         ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã thêm danh mục thành công!',
+                'category' => $category
+            ]);
+        }
 
         return redirect()->route('admin.categories.index')->with('success', 'Đã thêm danh mục!');
     }
@@ -61,12 +69,41 @@ class CategoryController extends Controller
             'name' => $request->name,
         ]);
 
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật danh mục thành công!',
+                'category' => $category->fresh()
+            ]);
+        }
+
         return redirect()->route('admin.categories.index')->with('success', 'Cập nhật danh mục thành công!');
     }
 
     public function destroy(Category $category)
     {
+        // Kiểm tra xem có sản phẩm nào đang sử dụng danh mục này không
+        $productsCount = $category->products()->count();
+        
+        if ($productsCount > 0) {
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Không thể xóa danh mục này vì có {$productsCount} sản phẩm đang sử dụng."
+                ], 422);
+            }
+            return redirect()->route('admin.categories.index')
+                ->with('error', "Không thể xóa danh mục này vì có {$productsCount} sản phẩm đang sử dụng.");
+        }
+
         $category->delete();
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Xóa danh mục thành công!'
+            ]);
+        }
 
         return redirect()->route('admin.categories.index')->with('success', 'Xoá danh mục thành công!');
     }

@@ -176,12 +176,15 @@
                                     @endif
 
                                     <h4>{{ $product->name ?? 'Tên sản phẩm' }}</h4>
-                                    <p>{{ number_format($product->price ?? 0) }} VNĐ</p>
                                     
-                                    <div class="product-actions">
-                                        <a href="{{ route('user.products.show', $product->id) }}" class="view-details">
-                                            Xem chi tiết
-                                        </a>
+                                    <div class="product-price-action-wrapper">
+                                        <p class="product-price">{{ number_format($product->price ?? 0) }} VNĐ</p>
+                                        
+                                        <div class="product-actions">
+                                            <a href="{{ route('user.products.show', $product->id) }}" class="view-details">
+                                                Xem chi tiết
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             @endif
@@ -208,6 +211,22 @@
             </div>
         </section>
 
+        <!-- Gợi ý dành riêng cho bạn -->
+        <section id="personalized-recommendations" style="margin-top: 60px; padding: 40px 5%; background: #f9fafb;">
+            <div style="max-width: 1400px; margin: 0 auto;">
+                <h3 style="font-size: 28px; font-weight: 700; margin-bottom: 30px; text-align: center; color: #1f2937;">
+                    💡 Gợi ý dành riêng cho bạn
+                </h3>
+                <p style="text-align: center; color: #6b7280; margin-bottom: 30px; font-size: 16px;">
+                    Dựa trên hồ sơ da của bạn
+                </p>
+                <div id="personalized-products-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+                    <div style="text-align: center; padding: 40px; color: #6b7280;">
+                        Đang tải gợi ý...
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <section id="about-brand">
             <div class="brand-content">
@@ -235,6 +254,47 @@
         if(totalLeftBanners > 1){
             setInterval(() => changeLeftBanner(1), 5000);
         }
+
+        // Load personalized recommendations
+        async function loadPersonalizedRecommendations() {
+            const container = document.getElementById('personalized-products-container');
+            try {
+                const response = await fetch('/recommendations/content-based?limit=8');
+                const data = await response.json();
+                
+                if (data.success && data.products && data.products.length > 0) {
+                    container.innerHTML = data.products.map(product => {
+                        const image = product.images && product.images.length > 0 
+                            ? `/storage/${product.images[0].image_path}` 
+                            : '/storage/placeholder.jpg';
+                        const price = new Intl.NumberFormat('vi-VN').format(product.price);
+                        
+                        return `
+                            <div class="product-card" style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer;" 
+                                 onclick="window.location.href='/products/${product.id}'"
+                                 onmouseover="this.style.transform='translateY(-5px)'"
+                                 onmouseout="this.style.transform='translateY(0)'">
+                                <img src="${image}" alt="${product.name}" style="width: 100%; height: 200px; object-fit: cover;">
+                                <div style="padding: 15px;">
+                                    <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #1f2937; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${product.name}</h4>
+                                    <p style="font-size: 16px; font-weight: 700; color: #3b82f6; margin: 0;">${price} VNĐ</p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Chưa có thông tin da để gợi ý. <a href="/profile/edit" style="color: #3b82f6;">Cập nhật hồ sơ da của bạn</a></div>';
+                }
+            } catch (error) {
+                console.error('Error loading personalized recommendations:', error);
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Không thể tải gợi ý</div>';
+            }
+        }
+
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPersonalizedRecommendations();
+        });
 
         // Product slider logic
         let currentSlide = 0;

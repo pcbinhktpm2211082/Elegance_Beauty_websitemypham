@@ -1,0 +1,177 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="max-w-7xl mx-auto py-6">
+    <!-- Tiêu đề -->
+    <h1 class="text-xl font-bold text-center mb-2">Quản lý nhãn phân loại</h1>
+
+    <!-- Nút thêm -->
+    <div class="mb-4 text-left">
+        <button onclick="openAddModal()" 
+                class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
+            ➕ Thêm nhãn phân loại
+        </button>
+    </div>
+
+    <!-- Bảng -->
+    <div class="bg-white p-4 rounded shadow border overflow-x-auto">
+        <!-- Loại da -->
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-3 text-gray-800">Loại da</h2>
+            <table class="w-full table-auto border-collapse border border-gray-300 text-sm">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="border px-4 py-2">ID</th>
+                        <th class="border px-4 py-2">Tên nhãn</th>
+                        <th class="border px-4 py-2">Số sản phẩm</th>
+                        <th class="border px-4 py-2">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($classifications['skin_type'] ?? [] as $classification)
+                    <tr class="hover:bg-gray-50">
+                        <td class="border px-4 py-2 text-center">{{ $classification->id }}</td>
+                        <td class="border px-4 py-2">{{ $classification->name }}</td>
+                        <td class="border px-4 py-2 text-center">{{ $classification->products()->count() }}</td>
+                        <td class="border px-4 py-2">
+                            <div class="flex justify-center gap-2">
+                                <button onclick="openEditModal({{ $classification->id }}, '{{ $classification->name }}', '{{ $classification->type }}')" 
+                                        class="px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded hover:bg-yellow-200 transition text-xs font-medium">
+                                    ✏️ Sửa
+                                </button>
+                                <form method="POST" action="{{ route('admin.product-classifications.destroy', $classification->id) }}" 
+                                      onsubmit="return confirm('Bạn có chắc muốn xoá?')" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 border border-red-300 rounded hover:bg-red-200 transition text-xs font-medium">
+                                        🗑️ Xoá
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="border px-4 py-2 text-center text-gray-500">Chưa có nhãn phân loại</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Các vấn đề da -->
+        <div>
+            <h2 class="text-lg font-semibold mb-3 text-gray-800">Các vấn đề da</h2>
+            <table class="w-full table-auto border-collapse border border-gray-300 text-sm">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="border px-4 py-2">ID</th>
+                        <th class="border px-4 py-2">Tên nhãn</th>
+                        <th class="border px-4 py-2">Số sản phẩm</th>
+                        <th class="border px-4 py-2">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($classifications['skin_concern'] ?? [] as $classification)
+                    <tr class="hover:bg-gray-50">
+                        <td class="border px-4 py-2 text-center">{{ $classification->id }}</td>
+                        <td class="border px-4 py-2">{{ $classification->name }}</td>
+                        <td class="border px-4 py-2 text-center">{{ $classification->products()->count() }}</td>
+                        <td class="border px-4 py-2">
+                            <div class="flex justify-center gap-2">
+                                <button onclick="openEditModal({{ $classification->id }}, '{{ $classification->name }}', '{{ $classification->type }}')" 
+                                        class="px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded hover:bg-yellow-200 transition text-xs font-medium">
+                                    ✏️ Sửa
+                                </button>
+                                <form method="POST" action="{{ route('admin.product-classifications.destroy', $classification->id) }}" 
+                                      onsubmit="return confirm('Bạn có chắc muốn xoá?')" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 border border-red-300 rounded hover:bg-red-200 transition text-xs font-medium">
+                                        🗑️ Xoá
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="border px-4 py-2 text-center text-gray-500">Chưa có nhãn phân loại</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm/sửa -->
+<div id="classificationModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-[9999] flex items-center justify-center" style="backdrop-filter: blur(2px);">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl border-2 border-gray-200" style="z-index: 10000;">
+        <h2 id="modalTitle" class="text-xl font-bold mb-4 text-gray-900">Thêm nhãn phân loại</h2>
+        
+        <form id="classificationForm" method="POST">
+            @csrf
+            <div id="methodField"></div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-800 mb-2">Tên nhãn:</label>
+                <input type="text" name="name" id="classificationName" required
+                       class="w-full border-2 border-gray-300 rounded px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-800 mb-2">Loại:</label>
+                <select name="type" id="classificationType" required
+                        class="w-full border-2 border-gray-300 rounded px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="skin_type">Loại da</option>
+                    <option value="skin_concern">Các vấn đề da</option>
+                </select>
+            </div>
+            
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeModal()" 
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition font-medium border border-gray-400">
+                    Hủy
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-medium shadow-md">
+                    Lưu
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'Thêm nhãn phân loại';
+    document.getElementById('classificationForm').action = '{{ route("admin.product-classifications.store") }}';
+    document.getElementById('methodField').innerHTML = '';
+    document.getElementById('classificationName').value = '';
+    document.getElementById('classificationType').value = 'skin_type';
+    document.getElementById('classificationModal').classList.remove('hidden');
+}
+
+function openEditModal(id, name, type) {
+    document.getElementById('modalTitle').textContent = 'Sửa nhãn phân loại';
+    document.getElementById('classificationForm').action = '{{ route("admin.product-classifications.update", ":id") }}'.replace(':id', id);
+    document.getElementById('methodField').innerHTML = '@method("PUT")';
+    document.getElementById('classificationName').value = name;
+    document.getElementById('classificationType').value = type;
+    document.getElementById('classificationModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('classificationModal').classList.add('hidden');
+}
+
+// Đóng modal khi click outside
+document.getElementById('classificationModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+</script>
+@endsection
+

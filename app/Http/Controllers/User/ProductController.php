@@ -11,7 +11,10 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['images', 'variants', 'category']);
+        $query = Product::where('is_active', true)
+            ->with(['images', 'variants' => function($q) {
+                $q->where('is_active', true);
+            }, 'category']);
         
         // Debug: Log filter parameters
         if ($request->filled('categories') || $request->filled('category')) {
@@ -103,8 +106,18 @@ class ProductController extends Controller
             
             return response()->json(['products' => $formattedProducts]);
         }
+        
 
         $products = $query->paginate(12)->appends($request->query());
+        
+        // Lọc biến thể không hoạt động cho từng sản phẩm
+        $products->getCollection()->transform(function($product) {
+            $product->variants = $product->variants->filter(function($variant) {
+                return $variant->is_active ?? true;
+            });
+            return $product;
+        });
+        
         $categories = Category::all();
         
         return view('user.products.index', compact('products', 'categories'));
@@ -112,8 +125,34 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $product->load(['images', 'variants', 'category']);
+        // Kiểm tra sản phẩm có đang hoạt động không
+        if (!$product->is_active) {
+            abort(404);
+        }
+        
+        $product->load(['images', 'variants' => function($q) {
+            $q->where('is_active', true);
+        }, 'category', 'classifications']);
+        
+        // Track view history
+        $this->trackView($product);
         
         return view('user.products.show', compact('product'));
+    }
+
+    /**
+     * Track product view for recommendation system
+     */
+    private function trackView(Product $product)
+    {
+        $user = auth()->user();
+        $ipAddress = request()->ip();
+
+        \App\Models\ProductView::create([
+            'user_id' => $user ? $user->id : null,
+            'product_id' => $product->id,
+            'ip_address' => $ipAddress,
+            'viewed_at' => now(),
+        ]);
     }
 }

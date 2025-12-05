@@ -25,6 +25,12 @@ class User extends Authenticatable
         'ward',
         'role',
         'status',
+        'provider',
+        'provider_id',
+        'email_verified_at',
+        'skin_type',
+        'skin_concerns',
+        'is_sensitive',
     ];
 
     protected $hidden = [
@@ -36,6 +42,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'dob' => 'date',
         'status' => 'boolean',
+        'skin_concerns' => 'array',
+        'is_sensitive' => 'boolean',
     ];
 
     // Accessor methods
@@ -45,7 +53,19 @@ class User extends Authenticatable
             'male' => 'Nam',
             'female' => 'Nữ',
             'other' => 'Khác',
-            default => 'Chưa cập nhật'
+            default => 'Chưa cập nhật',
+        };
+    }
+
+    public function getSkinTypeTextAttribute()
+    {
+        return match($this->skin_type) {
+            'normal' => 'Da Thường',
+            'dry' => 'Da Khô',
+            'oily' => 'Da Dầu/Nhờn',
+            'combination' => 'Da Hỗn Hợp',
+            'sensitive' => 'Da Nhạy Cảm',
+            default => 'Chưa xác định',
         };
     }
 
@@ -58,5 +78,10 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function productViews()
+    {
+        return $this->hasMany(ProductView::class);
     }
 }

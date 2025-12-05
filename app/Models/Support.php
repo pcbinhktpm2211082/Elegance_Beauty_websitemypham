@@ -7,18 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class Support extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'name',
         'email', 
         'title',
         'message',
         'status', 
-        'created_by'
+        'created_by',
     ];
 
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(SupportMessage::class);
     }
 
     public function getStatusTextAttribute()

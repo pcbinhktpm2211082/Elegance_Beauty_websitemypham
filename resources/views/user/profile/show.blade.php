@@ -48,6 +48,11 @@
                 </div>
                 
                 <div class="info-item">
+                    <label>Loại da:</label>
+                    <span>{{ $user->skin_type_text }}</span>
+                </div>
+                
+                <div class="info-item">
                     <label>Ngày sinh:</label>
                     <span>{{ $user->dob ? $user->dob->format('d/m/Y') : 'Chưa cập nhật' }}</span>
                 </div>

@@ -14,11 +14,14 @@
     @endif
 
     <h4>{{ $product->name }}</h4>
-    <p>{{ number_format($product->price, 0, ',', '.') }} VNĐ</p>
     
-    <div class="product-actions">
-        <a href="{{ route('user.products.show', $product->id) }}" class="view-details">
-            Xem chi tiết
-        </a>
+    <div class="product-price-action-wrapper">
+        <p class="product-price">{{ number_format($product->price, 0, ',', '.') }} VNĐ</p>
+        
+        <div class="product-actions">
+            <a href="{{ route('user.products.show', $product->id) }}" class="view-details">
+                Xem chi tiết
+            </a>
+        </div>
     </div>
 </div>

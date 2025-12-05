@@ -14,7 +14,13 @@ class Product extends Model
         'quantity',
         'image',         
         'is_active',
-        'is_featured',     
+        'is_featured',
+        'product_type',
+        'sensitive_flags',
+    ];
+
+    protected $casts = [
+        'sensitive_flags' => 'array',
     ];
 
 
@@ -22,6 +28,11 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
     }
 
     public function images()
@@ -79,5 +90,24 @@ class Product extends Model
         return $this->quantity;
     }
 
+    public function classifications()
+    {
+        return $this->belongsToMany(ProductClassification::class, 'product_product_classification');
+    }
+
+    public function skinTypes()
+    {
+        return $this->classifications()->where('type', 'skin_type');
+    }
+
+    public function skinConcerns()
+    {
+        return $this->classifications()->where('type', 'skin_concern');
+    }
+
+    public function views()
+    {
+        return $this->hasMany(ProductView::class);
+    }
 
 }

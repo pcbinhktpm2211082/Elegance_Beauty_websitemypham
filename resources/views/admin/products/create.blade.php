@@ -62,8 +62,14 @@
 
                 {{-- Danh mục --}}
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Danh mục:</label>
-                    <select name="category_id" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-medium text-gray-700">Danh mục:</label>
+                        <button type="button" onclick="openCategoryModal()" 
+                                class="text-xs text-blue-600 hover:text-blue-800 underline">
+                            ⚙️ Quản lý danh mục
+                        </button>
+                    </div>
+                    <select id="category_id" name="category_id" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
                         <option value="">-- Chọn danh mục --</option>
                         @foreach ($categories as $category)
                             <option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>
@@ -71,6 +77,69 @@
                             </option>
                         @endforeach
                     </select>
+                </div>
+
+                {{-- Loại sản phẩm --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Loại sản phẩm:</label>
+                    <select name="product_type" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">-- Chọn loại sản phẩm (tùy chọn) --</option>
+                        <option value="Skincare" {{ old('product_type') == 'Skincare' ? 'selected' : '' }}>Skincare (Chăm sóc da mặt)</option>
+                        <option value="Serum" {{ old('product_type') == 'Serum' ? 'selected' : '' }}>Serum</option>
+                        <option value="Toner" {{ old('product_type') == 'Toner' ? 'selected' : '' }}>Toner</option>
+                        <option value="Moisturizer" {{ old('product_type') == 'Moisturizer' ? 'selected' : '' }}>Moisturizer (Kem dưỡng ẩm)</option>
+                        <option value="Cleanser" {{ old('product_type') == 'Cleanser' ? 'selected' : '' }}>Cleanser (Sữa rửa mặt)</option>
+                        <option value="Sunscreen" {{ old('product_type') == 'Sunscreen' ? 'selected' : '' }}>Sunscreen (Kem chống nắng)</option>
+                        <option value="Mask" {{ old('product_type') == 'Mask' ? 'selected' : '' }}>Mask (Mặt nạ)</option>
+                        <option value="Lip Balm" {{ old('product_type') == 'Lip Balm' ? 'selected' : '' }}>Lip Balm (Son dưỡng môi)</option>
+                        <option value="Body Lotion" {{ old('product_type') == 'Body Lotion' ? 'selected' : '' }}>Body Lotion (Kem dưỡng thể)</option>
+                        <option value="Makeup" {{ old('product_type') == 'Makeup' ? 'selected' : '' }}>Makeup (Trang điểm)</option>
+                        <option value="Eye Cream" {{ old('product_type') == 'Eye Cream' ? 'selected' : '' }}>Eye Cream (Kem mắt)</option>
+                        <option value="Essence" {{ old('product_type') == 'Essence' ? 'selected' : '' }}>Essence</option>
+                        <option value="Ampoule" {{ old('product_type') == 'Ampoule' ? 'selected' : '' }}>Ampoule</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Chọn loại sản phẩm để hệ thống gợi ý chính xác hơn. Một số loại như Lip Balm, Body Lotion, Makeup sẽ bỏ qua bộ lọc loại da.</p>
+                </div>
+            </div>
+
+            {{-- Phân loại sản phẩm --}}
+            <div class="mt-4">
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="text-sm font-medium text-gray-900">Phân loại sản phẩm:</h4>
+                    <button type="button" onclick="openClassificationModal()" 
+                            class="text-xs text-blue-600 hover:text-blue-800 underline">
+                        ⚙️ Quản lý nhãn phân loại
+                    </button>
+                </div>
+                
+                {{-- Loại da --}}
+                <div class="mb-4" id="skin-types-container">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Loại da:</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; max-width: 100%;" id="skin-types-list">
+                        @foreach ($skinTypes as $skinType)
+                            <label class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 {{ in_array($skinType->id, old('classifications', [])) ? 'bg-blue-50 border-blue-500' : '' }}" style="height: 38px; box-sizing: border-box; flex-shrink: 0;">
+                                <input type="checkbox" name="classifications[]" value="{{ $skinType->id }}" 
+                                    {{ in_array($skinType->id, old('classifications', [])) ? 'checked' : '' }}
+                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" style="flex-shrink: 0;">
+                                <span class="ml-2 text-sm text-gray-700 whitespace-nowrap" style="flex-shrink: 0;">{{ $skinType->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Các vấn đề da --}}
+                <div id="skin-concerns-container">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Các vấn đề da:</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; max-width: 100%;" id="skin-concerns-list">
+                        @foreach ($skinConcerns as $skinConcern)
+                            <label class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 {{ in_array($skinConcern->id, old('classifications', [])) ? 'bg-blue-50 border-blue-500' : '' }}" style="height: 38px; box-sizing: border-box; flex-shrink: 0;">
+                                <input type="checkbox" name="classifications[]" value="{{ $skinConcern->id }}" 
+                                    {{ in_array($skinConcern->id, old('classifications', [])) ? 'checked' : '' }}
+                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" style="flex-shrink: 0;">
+                                <span class="ml-2 text-sm text-gray-700 whitespace-nowrap" style="flex-shrink: 0;">{{ $skinConcern->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
@@ -81,6 +150,13 @@
                         {{ old('is_featured') ? 'checked' : '' }} 
                         class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                     <span class="ml-2 text-sm text-gray-700">Sản phẩm nổi bật</span>
+                </label>
+                <br>
+                <label class="inline-flex items-center">
+                    <input type="checkbox" name="is_active" value="1" 
+                        {{ old('is_active', true) ? 'checked' : '' }} 
+                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    <span class="ml-2 text-sm text-gray-700">Sản phẩm đang hoạt động</span>
                 </label>
             </div>
         </div>
@@ -139,6 +215,13 @@
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                     </div>
+                    <div class="mt-3">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="variants[0][is_active]" value="1" checked
+                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Biến thể đang hoạt động</span>
+                        </label>
+                    </div>
                     <div class="mt-3 text-right">
                         <button type="button" class="remove-variant-btn bg-red-100 text-red-700 border border-red-300 px-3 py-1 rounded hover:bg-red-200 transition text-sm font-medium">
                             ❌ Xóa biến thể
@@ -196,6 +279,222 @@ ClassicEditor.create(document.querySelector('#description'), {
     height: '400px'
 }).catch(error => {
     console.error(error);
+});
+</script>
+
+<!-- Modal quản lý danh mục -->
+<div id="categoryModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-[9999] flex items-center justify-center" style="backdrop-filter: blur(2px);">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl border-2 border-gray-200" style="z-index: 10000;">
+        <h2 id="categoryModalTitle" class="text-xl font-bold mb-4 text-gray-900">Thêm danh mục</h2>
+        
+        <form id="categoryForm" method="POST">
+            @csrf
+            <div id="categoryMethodField"></div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-800 mb-2">Tên danh mục:</label>
+                <input type="text" name="name" id="categoryName" required
+                       class="w-full border-2 border-gray-300 rounded px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeCategoryModal()" 
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition font-medium border border-gray-400">
+                    Hủy
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
+                    Lưu
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal quản lý nhãn phân loại -->
+<div id="classificationModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-[9999] flex items-center justify-center" style="backdrop-filter: blur(2px);">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl border-2 border-gray-200" style="z-index: 10000;">
+        <h2 id="classificationModalTitle" class="text-xl font-bold mb-4 text-gray-900">Thêm nhãn phân loại</h2>
+        
+        <form id="classificationForm" method="POST">
+            @csrf
+            <div id="classificationMethodField"></div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-800 mb-2">Tên nhãn:</label>
+                <input type="text" name="name" id="classificationName" required
+                       class="w-full border-2 border-gray-300 rounded px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-800 mb-2">Loại:</label>
+                <select name="type" id="classificationType" required
+                        class="w-full border-2 border-gray-300 rounded px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="skin_type">Loại da</option>
+                    <option value="skin_concern">Các vấn đề da</option>
+                </select>
+            </div>
+            
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeClassificationModal()" 
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition font-medium border border-gray-400">
+                    Hủy
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
+                    Lưu
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Category Management
+function openCategoryModal() {
+    document.getElementById('categoryModalTitle').textContent = 'Thêm danh mục';
+    document.getElementById('categoryForm').action = '{{ route("admin.categories.store") }}';
+    document.getElementById('categoryMethodField').innerHTML = '';
+    document.getElementById('categoryName').value = '';
+    document.getElementById('categoryModal').classList.remove('hidden');
+}
+
+function closeCategoryModal() {
+    document.getElementById('categoryModal').classList.add('hidden');
+}
+
+// Category Form Submit
+document.getElementById('categoryForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const action = this.action;
+    const method = this.querySelector('input[name="_method"]')?.value || 'POST';
+    
+    formData.append('_token', '{{ csrf_token() }}');
+    if (method !== 'POST') {
+        formData.append('_method', method);
+    }
+    
+    try {
+        const response = await fetch(action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Thêm danh mục mới vào dropdown
+            const select = document.getElementById('category_id');
+            const option = document.createElement('option');
+            option.value = data.category.id;
+            option.textContent = data.category.name;
+            option.selected = true;
+            select.appendChild(option);
+            
+            // Đóng modal
+            closeCategoryModal();
+            
+            // Hiển thị thông báo
+            alert(data.message || 'Thành công!');
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi thêm danh mục');
+    }
+});
+
+// Classification Management
+function openClassificationModal() {
+    document.getElementById('classificationModalTitle').textContent = 'Thêm nhãn phân loại';
+    document.getElementById('classificationForm').action = '{{ route("admin.product-classifications.store") }}';
+    document.getElementById('classificationMethodField').innerHTML = '';
+    document.getElementById('classificationName').value = '';
+    document.getElementById('classificationType').value = 'skin_type';
+    document.getElementById('classificationModal').classList.remove('hidden');
+}
+
+function closeClassificationModal() {
+    document.getElementById('classificationModal').classList.add('hidden');
+}
+
+// Classification Form Submit
+document.getElementById('classificationForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const action = this.action;
+    
+    formData.append('_token', '{{ csrf_token() }}');
+    formData.append('ajax', '1');
+    
+    try {
+        const response = await fetch(action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Thêm nhãn mới vào danh sách checkbox
+            const classification = data.classification;
+            const type = classification.type;
+            
+            // Tìm container phù hợp
+            let container;
+            if (type === 'skin_type') {
+                container = document.getElementById('skin-types-list');
+            } else {
+                container = document.getElementById('skin-concerns-list');
+            }
+            
+            if (container) {
+                const label = document.createElement('label');
+                label.className = 'inline-flex items-center px-3 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50';
+                label.style.cssText = 'height: 38px; box-sizing: border-box; flex-shrink: 0;';
+                label.innerHTML = `
+                    <input type="checkbox" name="classifications[]" value="${classification.id}" 
+                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" style="flex-shrink: 0;">
+                    <span class="ml-2 text-sm text-gray-700 whitespace-nowrap" style="flex-shrink: 0;">${classification.name}</span>
+                `;
+                container.appendChild(label);
+            }
+            
+            // Đóng modal
+            closeClassificationModal();
+            
+            // Hiển thị thông báo
+            alert(data.message || 'Thành công!');
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi thêm nhãn phân loại');
+    }
+});
+
+// Đóng modal khi click outside
+document.getElementById('categoryModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeCategoryModal();
+    }
+});
+
+document.getElementById('classificationModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeClassificationModal();
+    }
 });
 </script>
 @endsection

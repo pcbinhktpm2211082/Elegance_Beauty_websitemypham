@@ -4,6 +4,18 @@
 <div class="max-w-7xl mx-auto py-6">
     <h1 class="text-xl font-bold text-center mb-2">Danh sách sản phẩm</h1>
 
+    @if(session('error'))
+        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+            <i class="fas fa-check-circle"></i> {{ session('success') }}
+        </div>
+    @endif
+
     <!-- Form tìm kiếm -->
     <div class="mb-4">
         <form method="GET" action="{{ route('admin.products.index') }}" class="flex flex-wrap gap-2 items-center">

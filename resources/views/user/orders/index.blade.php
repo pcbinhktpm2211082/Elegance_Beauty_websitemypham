@@ -109,8 +109,20 @@
                                     <i class="fas fa-eye"></i>
                                     Xem chi tiết
                                 </a>
-                                
-                                @if($order->status === 'pending')
+                                @if($order->status === 'delivered')
+                                    @php $firstProduct = optional($order->orderItems->first())->product; @endphp
+                                    @if($firstProduct)
+                                        <button type="button"
+                                                class="review-order-btn"
+                                                style="border:none; border-radius:999px; padding:8px 14px; background:linear-gradient(135deg,#b45309,#92400e); color:#fff; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;"
+                                                data-product-id="{{ $firstProduct->id }}"
+                                                data-product-name="{{ $firstProduct->name }}"
+                                                onclick="openOrderReviewModal(this.dataset.productId, this.dataset.productName)">
+                                            <i class="fas fa-star"></i>
+                                            Đánh giá
+                                        </button>
+                                    @endif
+                                @elseif($order->status === 'pending')
                                     <button class="cancel-order-btn" onclick="cancelOrder({{ $order->id }})">
                                         <i class="fas fa-times"></i>
                                         Hủy đơn hàng
@@ -139,10 +151,59 @@
     </div>
 </div>
 
+<!-- Modal đánh giá sản phẩm từ đơn hàng -->
+<div id="order-review-modal"
+     data-review-base-url="{{ url('/products') }}"
+     onclick="if(event.target === this) closeOrderReviewModal()"
+     style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:9999; align-items:center; justify-content:center;">
+    <div id="order-review-modal-box"
+         style="position:relative; max-width:640px; width:100%; margin:0 16px; background:#ffffff; border-radius:16px; box-shadow:0 20px 50px rgba(15,23,42,0.35); padding:20px 24px;">
+        <button type="button"
+                onclick="closeOrderReviewModal()"
+                style="position:absolute; top:10px; right:14px; border:none; background:none; cursor:pointer; color:#6b7280;">
+            ✕
+        </button>
+        <h3 style="font-size:18px; font-weight:600; margin-bottom:8px;">
+            Đánh giá sản phẩm <span id="order-review-product-name" style="color:#b45309;"></span>
+        </h3>
+        <p style="font-size:13px; color:#6b7280; margin-bottom:16px;">
+            Bạn chỉ có thể đánh giá khi đơn hàng đã được giao thành công.
+        </p>
+
+        <form id="order-review-form" method="POST" action="" enctype="multipart/form-data">
+            @csrf
+            <div class="rating-input" style="margin-bottom:12px;">
+                <label style="display:block; font-size:14px; font-weight:500; margin-bottom:6px;">Số sao:</label>
+                <div class="star-selector" id="order-review-stars" style="display:flex; gap:6px;">
+                    @for($i=1;$i<=5;$i++)
+                        <label style="cursor:pointer;">
+                            <input type="radio" name="rating" value="{{ $i }}" {{ $i==5 ? 'checked' : '' }} style="display:none;">
+                            <span data-value="{{ $i }}" style="font-size:20px; color:{{ $i <= 5 ? '#fbbf24' : '#d1d5db' }};">★</span>
+                        </label>
+                    @endfor
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label for="order-review-comment" style="display:block; font-size:14px; font-weight:500; margin-bottom:6px;">Nhận xét của bạn</label>
+                <textarea id="order-review-comment" name="comment" rows="4"
+                          style="width:100%; border-radius:10px; border:1px solid #d1d5db; padding:8px 10px; font-size:13px;"
+                          placeholder="Chất lượng sản phẩm, trải nghiệm sử dụng..."></textarea>
+            </div>
+            <div class="form-group" style="margin-bottom:16px;">
+                <label for="order-review-images" style="display:block; font-size:14px; font-weight:500; margin-bottom:6px;">Ảnh kèm theo (tối đa 5 ảnh)</label>
+                <input type="file" name="images[]" id="order-review-images" accept="image/*" multiple>
+            </div>
+            <button type="submit"
+                    style="border:none; border-radius:999px; padding:10px 18px; background:linear-gradient(135deg,#b45309,#92400e); color:#fff; font-size:13px; font-weight:600; cursor:pointer;">
+                Gửi đánh giá
+            </button>
+        </form>
+    </div>
+</div>
+
 <script>
 function cancelOrder(orderId) {
     if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
-        // Gửi request hủy đơn hàng
         fetch(`/orders/${orderId}/cancel`, {
             method: 'POST',
             headers: {
@@ -165,5 +226,52 @@ function cancelOrder(orderId) {
         });
     }
 }
+
+function openOrderReviewModal(productId, productName) {
+    const modal = document.getElementById('order-review-modal');
+    const box   = document.getElementById('order-review-modal-box');
+    const form  = document.getElementById('order-review-form');
+    const nameSpan = document.getElementById('order-review-product-name');
+    const baseUrl  = modal.dataset.reviewBaseUrl;
+
+    if (!modal || !box || !form) return;
+    form.action = baseUrl + '/' + productId + '/reviews';
+    if (nameSpan) nameSpan.textContent = productName || '';
+    modal.style.display = 'flex';
+}
+
+function closeOrderReviewModal() {
+    const modal = document.getElementById('order-review-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+// Khởi tạo chọn sao cho pop-up đánh giá đơn hàng
+document.addEventListener('DOMContentLoaded', function () {
+    const starContainer = document.getElementById('order-review-stars');
+    if (!starContainer) return;
+
+    const labels = starContainer.querySelectorAll('label');
+
+    labels.forEach((label, index) => {
+        label.addEventListener('click', function () {
+            const input = this.querySelector('input[type="radio"]');
+            const value = parseInt(input.value);
+
+            // Cập nhật checked cho radio
+            input.checked = true;
+
+            // Đổi màu các ngôi sao
+            labels.forEach((lb) => {
+                const span = lb.querySelector('span');
+                const starVal = parseInt(span.getAttribute('data-value'));
+                if (starVal <= value) {
+                    span.style.color = '#fbbf24'; // vàng
+                } else {
+                    span.style.color = '#d1d5db'; // xám nhạt
+                }
+            });
+        });
+    });
+});
 </script>
 @endsection

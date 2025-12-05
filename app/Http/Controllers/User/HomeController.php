@@ -29,7 +29,13 @@ class HomeController extends Controller
                 ->first();
 
             // Lấy 6 sản phẩm nổi bật
-            $featuredProducts = Product::where('is_featured', true)->take(6)->get();
+            $featuredProducts = Product::where('is_active', true)
+                ->where('is_featured', true)
+                ->with(['images', 'variants' => function($q) {
+                    $q->where('is_active', true);
+                }])
+                ->take(6)
+                ->get();
 
             return view('user.index', [
                 'featuredProducts' => $featuredProducts,
