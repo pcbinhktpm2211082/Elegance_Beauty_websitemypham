@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductClassification;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -14,7 +15,14 @@ class ProductController extends Controller
         $query = Product::where('is_active', true)
             ->with(['images', 'variants' => function($q) {
                 $q->where('is_active', true);
-            }, 'category']);
+            }, 'category', 'classifications'])
+            ->withCount(['reviews as approved_reviews_count' => function($q) {
+                $q->where('is_approved', true);
+            }])
+            ->withAvg(['reviews as avg_rating' => function($q) {
+                $q->where('is_approved', true);
+            }], 'rating')
+            ->selectRaw('products.*, (SELECT COALESCE(SUM(order_items.quantity), 0) FROM order_items INNER JOIN orders ON order_items.order_id = orders.id WHERE order_items.product_id = products.id AND orders.status IN ("processing", "shipped", "delivered")) as sales_count');
         
         // Debug: Log filter parameters
         if ($request->filled('categories') || $request->filled('category')) {
@@ -34,10 +42,12 @@ class ProductController extends Controller
             });
         }
 
-        // Lọc theo danh mục (nhiều danh mục)
-        if ($request->filled('categories')) {
+        // Lọc theo danh mục (dropdown - chỉ chọn 1)
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        } elseif ($request->filled('categories')) {
+            // Fallback cho tham số cũ (nhiều danh mục)
             $categories = is_array($request->categories) ? $request->categories : [$request->categories];
-            // Filter out any empty values
             $categories = array_filter($categories, function($value) {
                 return !empty($value) && $value !== null;
             });
@@ -45,8 +55,6 @@ class ProductController extends Controller
             if (!empty($categories)) {
                 $query->whereIn('category_id', $categories);
             }
-        } elseif ($request->filled('category')) { // fallback tham số cũ
-            $query->where('category_id', $request->category);
         }
 
         // Lọc theo giá
@@ -57,18 +65,22 @@ class ProductController extends Controller
             $query->where('price', '<=', $request->max_price);
         }
 
-        // Lọc khuyến mãi (dựa trên is_featured)
-        if ($request->boolean('is_featured')) {
-            $query->where('is_featured', true);
+
+        // Lọc theo loại da
+        if ($request->filled('skin_type')) {
+            $skinTypeId = $request->skin_type;
+            $query->whereHas('classifications', function($q) use ($skinTypeId) {
+                $q->where('product_classifications.id', $skinTypeId)
+                  ->where('product_classifications.type', 'skin_type');
+            });
         }
 
-        // Lọc còn hàng
-        if ($request->boolean('in_stock')) {
-            $query->where(function($q) {
-                $q->where('quantity', '>', 0)
-                  ->orWhereHas('variants', function($v) {
-                      $v->where('quantity', '>', 0);
-                  });
+        // Lọc theo tình trạng da (skin concern)
+        if ($request->filled('skin_concern')) {
+            $skinConcernId = $request->skin_concern;
+            $query->whereHas('classifications', function($q) use ($skinConcernId) {
+                $q->where('product_classifications.id', $skinConcernId)
+                  ->where('product_classifications.type', 'skin_concern');
             });
         }
 
@@ -82,6 +94,15 @@ class ProductController extends Controller
                 break;
             case 'name':
                 $query->orderBy('name', $sortOrder);
+                break;
+            case 'rating':
+                // Sắp xếp theo đánh giá trung bình (giảm dần hoặc tăng dần)
+                // Sử dụng COALESCE để xử lý sản phẩm chưa có đánh giá (sẽ có giá trị 0)
+                $query->orderByRaw('COALESCE((SELECT AVG(rating) FROM product_reviews WHERE product_reviews.product_id = products.id AND product_reviews.is_approved = 1), 0) ' . $sortOrder);
+                break;
+            case 'sales':
+                // Sắp xếp theo số lượt bán (tổng quantity từ order_items của các order đã xác nhận)
+                $query->orderByRaw('(SELECT COALESCE(SUM(order_items.quantity), 0) FROM order_items INNER JOIN orders ON order_items.order_id = orders.id WHERE order_items.product_id = products.id AND orders.status IN ("processing", "shipped", "delivered")) ' . $sortOrder);
                 break;
             case 'created_at':
             default:
@@ -119,8 +140,10 @@ class ProductController extends Controller
         });
         
         $categories = Category::all();
+        $skinTypes = ProductClassification::where('type', 'skin_type')->orderBy('name')->get();
+        $skinConcerns = ProductClassification::where('type', 'skin_concern')->orderBy('name')->get();
         
-        return view('user.products.index', compact('products', 'categories'));
+        return view('user.products.index', compact('products', 'categories', 'skinTypes', 'skinConcerns'));
     }
 
     public function show(Product $product)
@@ -132,7 +155,13 @@ class ProductController extends Controller
         
         $product->load(['images', 'variants' => function($q) {
             $q->where('is_active', true);
-        }, 'category', 'classifications']);
+        }, 'category', 'classifications'])
+        ->loadCount(['reviews as approved_reviews_count' => function($q) {
+            $q->where('is_approved', true);
+        }])
+        ->loadAvg(['reviews as avg_rating' => function($q) {
+            $q->where('is_approved', true);
+        }], 'rating');
         
         // Track view history
         $this->trackView($product);

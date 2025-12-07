@@ -84,19 +84,14 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Loại sản phẩm:</label>
                     <select name="product_type" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">-- Chọn loại sản phẩm (tùy chọn) --</option>
-                        <option value="Skincare" {{ old('product_type') == 'Skincare' ? 'selected' : '' }}>Skincare (Chăm sóc da mặt)</option>
-                        <option value="Serum" {{ old('product_type') == 'Serum' ? 'selected' : '' }}>Serum</option>
-                        <option value="Toner" {{ old('product_type') == 'Toner' ? 'selected' : '' }}>Toner</option>
-                        <option value="Moisturizer" {{ old('product_type') == 'Moisturizer' ? 'selected' : '' }}>Moisturizer (Kem dưỡng ẩm)</option>
-                        <option value="Cleanser" {{ old('product_type') == 'Cleanser' ? 'selected' : '' }}>Cleanser (Sữa rửa mặt)</option>
-                        <option value="Sunscreen" {{ old('product_type') == 'Sunscreen' ? 'selected' : '' }}>Sunscreen (Kem chống nắng)</option>
-                        <option value="Mask" {{ old('product_type') == 'Mask' ? 'selected' : '' }}>Mask (Mặt nạ)</option>
-                        <option value="Lip Balm" {{ old('product_type') == 'Lip Balm' ? 'selected' : '' }}>Lip Balm (Son dưỡng môi)</option>
-                        <option value="Body Lotion" {{ old('product_type') == 'Body Lotion' ? 'selected' : '' }}>Body Lotion (Kem dưỡng thể)</option>
-                        <option value="Makeup" {{ old('product_type') == 'Makeup' ? 'selected' : '' }}>Makeup (Trang điểm)</option>
-                        <option value="Eye Cream" {{ old('product_type') == 'Eye Cream' ? 'selected' : '' }}>Eye Cream (Kem mắt)</option>
-                        <option value="Essence" {{ old('product_type') == 'Essence' ? 'selected' : '' }}>Essence</option>
-                        <option value="Ampoule" {{ old('product_type') == 'Ampoule' ? 'selected' : '' }}>Ampoule</option>
+                        @foreach($productTypes as $productType)
+                            <option value="{{ $productType->name }}" {{ old('product_type') == $productType->name ? 'selected' : '' }}>
+                                {{ $productType->name }}
+                                @if(!$productType->requires_skin_type_filter)
+                                    (Bỏ qua lọc loại da)
+                                @endif
+                            </option>
+                        @endforeach
                     </select>
                     <p class="text-xs text-gray-500 mt-1">Chọn loại sản phẩm để hệ thống gợi ý chính xác hơn. Một số loại như Lip Balm, Body Lotion, Makeup sẽ bỏ qua bộ lọc loại da.</p>
                 </div>

@@ -161,19 +161,14 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Loại sản phẩm:</label>
                     <select name="product_type" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">-- Chọn loại sản phẩm (tùy chọn) --</option>
-                        <option value="Skincare" {{ old('product_type', $product->product_type) == 'Skincare' ? 'selected' : '' }}>Skincare (Chăm sóc da mặt)</option>
-                        <option value="Serum" {{ old('product_type', $product->product_type) == 'Serum' ? 'selected' : '' }}>Serum</option>
-                        <option value="Toner" {{ old('product_type', $product->product_type) == 'Toner' ? 'selected' : '' }}>Toner</option>
-                        <option value="Moisturizer" {{ old('product_type', $product->product_type) == 'Moisturizer' ? 'selected' : '' }}>Moisturizer (Kem dưỡng ẩm)</option>
-                        <option value="Cleanser" {{ old('product_type', $product->product_type) == 'Cleanser' ? 'selected' : '' }}>Cleanser (Sữa rửa mặt)</option>
-                        <option value="Sunscreen" {{ old('product_type', $product->product_type) == 'Sunscreen' ? 'selected' : '' }}>Sunscreen (Kem chống nắng)</option>
-                        <option value="Mask" {{ old('product_type', $product->product_type) == 'Mask' ? 'selected' : '' }}>Mask (Mặt nạ)</option>
-                        <option value="Lip Balm" {{ old('product_type', $product->product_type) == 'Lip Balm' ? 'selected' : '' }}>Lip Balm (Son dưỡng môi)</option>
-                        <option value="Body Lotion" {{ old('product_type', $product->product_type) == 'Body Lotion' ? 'selected' : '' }}>Body Lotion (Kem dưỡng thể)</option>
-                        <option value="Makeup" {{ old('product_type', $product->product_type) == 'Makeup' ? 'selected' : '' }}>Makeup (Trang điểm)</option>
-                        <option value="Eye Cream" {{ old('product_type', $product->product_type) == 'Eye Cream' ? 'selected' : '' }}>Eye Cream (Kem mắt)</option>
-                        <option value="Essence" {{ old('product_type', $product->product_type) == 'Essence' ? 'selected' : '' }}>Essence</option>
-                        <option value="Ampoule" {{ old('product_type', $product->product_type) == 'Ampoule' ? 'selected' : '' }}>Ampoule</option>
+                        @foreach($productTypes as $productType)
+                            <option value="{{ $productType->name }}" {{ old('product_type', $product->product_type) == $productType->name ? 'selected' : '' }}>
+                                {{ $productType->name }}
+                                @if(!$productType->requires_skin_type_filter)
+                                    (Bỏ qua lọc loại da)
+                                @endif
+                            </option>
+                        @endforeach
                     </select>
                     <p class="text-xs text-gray-500 mt-1">Chọn loại sản phẩm để hệ thống gợi ý chính xác hơn. Một số loại như Lip Balm, Body Lotion, Makeup sẽ bỏ qua bộ lọc loại da.</p>
                 </div>
@@ -364,14 +359,29 @@
                         </div>
                     </div>
                     
-                    <div class="mt-3 p-2 bg-blue-50 border border-blue-200 rounded">
-                        <label class="inline-flex items-center cursor-pointer">
+                    <div class="mt-3 p-2 bg-blue-50 border border-blue-200 rounded flex items-center justify-between">
+                        <label class="inline-flex items-center cursor-pointer flex-1">
                             <input type="checkbox" name="variants[{{ $index }}][is_active]" value="1" 
                                 {{ old("variants.$index.is_active", isset($variant['is_active']) && $variant['is_active'] !== null ? (bool)$variant['is_active'] : true) ? 'checked' : '' }} 
                                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4">
-                            <span class="ml-2 text-sm font-semibold text-gray-800">✅ Biến thể đang hoạt động</span>
+                            <span class="ml-2 text-sm font-semibold text-gray-800">
+                                @if(old("variants.$index.is_active", isset($variant['is_active']) && $variant['is_active'] !== null ? (bool)$variant['is_active'] : true))
+                                    ✅ Biến thể đang hoạt động
+                                @else
+                                    ❌ Biến thể đã vô hiệu hóa
+                                @endif
+                            </span>
                             <span class="ml-2 text-xs text-gray-500">(Bỏ chọn để vô hiệu hóa biến thể này)</span>
                         </label>
+                        @if(isset($variant['id']) && $variant['id'])
+                        <form action="{{ route('admin.products.variants.toggle-status', [$product->id, $variant['id']]) }}" method="POST" class="ml-4">
+                            @csrf
+                            <button type="submit" 
+                                    class="text-xs px-3 py-1 {{ (old("variants.$index.is_active", isset($variant['is_active']) && $variant['is_active'] !== null ? (bool)$variant['is_active'] : true)) ? 'bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200' : 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200' }} border rounded transition">
+                                    {{ (old("variants.$index.is_active", isset($variant['is_active']) && $variant['is_active'] !== null ? (bool)$variant['is_active'] : true)) ? '🚫 Vô hiệu hóa ngay' : '✅ Kích hoạt ngay' }}
+                            </button>
+                        </form>
+                        @endif
                     </div>
                     
                     {{-- Hiển thị ảnh hiện tại của biến thể --}}

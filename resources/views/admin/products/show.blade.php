@@ -170,9 +170,9 @@
 
             <h3 class="text-lg font-semibold mt-4">Phân loại sản phẩm</h3>
             @if($product->variants->isNotEmpty())
-            <div class="flex gap-4 flex-wrap">
+            <div class="flex gap-4 flex-wrap mb-4">
                 @foreach($product->variants as $variant)
-                <div class="variant-btn"
+                <div class="variant-btn {{ !$variant->is_active ? 'opacity-50' : '' }}"
                      data-price="{{ $variant->price }}"
                      data-variant-id="{{ $variant->id }}"
                      @if($variant->image) data-variant-image="{{ asset('storage/' . $variant->image) }}" @endif
@@ -183,8 +183,31 @@
                              class="w-8 h-8 object-cover rounded mr-2 inline-block">
                     @endif
                     {{ $variant->variant_name }}
+                    @if(!$variant->is_active)
+                        <span class="text-xs text-red-600 ml-1">(Vô hiệu hóa)</span>
+                    @endif
                 </div>
                 @endforeach
+            </div>
+            <div class="mb-4 p-3 bg-gray-50 rounded border">
+                <h4 class="text-sm font-semibold mb-2">Quản lý biến thể:</h4>
+                <div class="flex flex-wrap gap-2">
+                    @foreach($product->variants as $variant)
+                    <div class="flex items-center gap-2 p-2 bg-white border rounded">
+                        <span class="text-sm">{{ $variant->variant_name }}</span>
+                        <span class="text-xs {{ $variant->is_active ? 'text-green-600' : 'text-red-600' }}">
+                            ({{ $variant->is_active ? 'Đang hoạt động' : 'Vô hiệu hóa' }})
+                        </span>
+                        <form action="{{ route('admin.products.variants.toggle-status', [$product->id, $variant->id]) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" 
+                                    class="text-xs px-2 py-1 {{ $variant->is_active ? 'bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200' : 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200' }} border rounded transition">
+                                    {{ $variant->is_active ? '🚫 Vô hiệu hóa' : '✅ Kích hoạt' }}
+                            </button>
+                        </form>
+                    </div>
+                    @endforeach
+                </div>
             </div>
             @endif
 

@@ -34,6 +34,13 @@ class HomeController extends Controller
                 ->with(['images', 'variants' => function($q) {
                     $q->where('is_active', true);
                 }])
+                ->withCount(['reviews as approved_reviews_count' => function($q) {
+                    $q->where('is_approved', true);
+                }])
+                ->withAvg(['reviews as avg_rating' => function($q) {
+                    $q->where('is_approved', true);
+                }], 'rating')
+                ->selectRaw('products.*, (SELECT COALESCE(SUM(order_items.quantity), 0) FROM order_items INNER JOIN orders ON order_items.order_id = orders.id WHERE order_items.product_id = products.id AND orders.status IN ("processing", "shipped", "delivered")) as sales_count')
                 ->take(6)
                 ->get();
 

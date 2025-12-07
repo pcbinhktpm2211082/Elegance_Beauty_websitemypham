@@ -66,8 +66,34 @@
             <div class="product-header">
                 <h1 class="product-title">{{ $product->name }}</h1>
                 <div class="product-rating">
-                    <span class="stars">★★★★☆</span>
-                    <span class="rating-text">(4.0/5.0)</span>
+                    @php
+                        $reviewsCount = $product->approved_reviews_count ?? 0;
+                        $avgRating = $product->avg_rating ? round($product->avg_rating, 1) : 0;
+                    @endphp
+                    
+                    @if($reviewsCount > 0)
+                        @php
+                            $fullStars = floor($avgRating);
+                            $hasHalfStar = ($avgRating - $fullStars) >= 0.5;
+                            $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                        @endphp
+                        <span class="stars" style="color: #fbbf24; font-size: 18px;">
+                            @for($i = 0; $i < $fullStars; $i++)
+                                ★
+                            @endfor
+                            @if($hasHalfStar)
+                                ★
+                            @elseif($avgRating > $fullStars)
+                                ★
+                            @endif
+                            @for($i = 0; $i < $emptyStars; $i++)
+                                ☆
+                            @endfor
+                        </span>
+                        <span class="rating-text">({{ number_format($avgRating, 1) }}/5.0) - {{ $reviewsCount }} đánh giá</span>
+                    @else
+                        <span class="rating-text" style="color: #9ca3af; font-style: italic;">Sản phẩm chưa có đánh giá</span>
+                    @endif
                 </div>
             </div>
             
@@ -182,23 +208,6 @@
         </div>
     </div>
 
-    <!-- Sản phẩm khác cùng mục đích (Routine) -->
-    <div class="routine-recommendations-section" style="margin-top: 60px; padding: 40px 20px; background: #ffffff; border-top: 2px solid #e5e7eb;">
-        <div class="container" style="max-width: 1200px; margin: 0 auto;">
-            <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 10px; color: #1f2937; text-align: center;">
-                🧴 Sản phẩm khác cùng mục đích (Routine)
-            </h2>
-            <p style="text-align: center; color: #6b7280; margin-bottom: 30px; font-size: 14px;">
-                Hoàn thiện quy trình chăm sóc da của bạn
-            </p>
-            <div id="routine-products-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
-                <div style="text-align: center; padding: 40px; color: #6b7280;">
-                    Đang tải gợi ý...
-                </div>
-            </div>
-        </div>
-    </div>
-    
     <!-- Phần mô tả sản phẩm -->
     <div class="product-description-section">
         <div class="description-tabs">
@@ -681,124 +690,176 @@ function showNotification(message, type) {
     }
 </script>
 
-<!-- Phần gợi ý sản phẩm -->
-<div class="recommendations-section" style="margin-top: 60px; padding: 40px 20px; background: #f9fafb;">
-    <div class="container" style="max-width: 1200px; margin: 0 auto;">
-        <div class="recommendations-tabs" style="display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid #e5e7eb;">
-            <button class="rec-tab-btn active" onclick="loadRecommendations('content-based', this)" style="padding: 12px 24px; background: none; border: none; border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 600; cursor: pointer; font-size: 16px;">
-                💡 Gợi ý theo loại da
-            </button>
-            <button class="rec-tab-btn" onclick="loadRecommendations('view-history', this)" style="padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent; color: #6b7280; font-weight: 500; cursor: pointer; font-size: 16px;">
-                📚 Dựa trên lịch sử xem
-            </button>
-            <button class="rec-tab-btn" onclick="loadRecommendations('hybrid', this)" style="padding: 12px 24px; background: none; border: none; border-bottom: 3px solid transparent; color: #6b7280; font-weight: 500; cursor: pointer; font-size: 16px;">
-                ⭐ Gợi ý tổng hợp
-            </button>
-        </div>
-        
-        <div id="recommendations-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
-            <div style="text-align: center; padding: 40px; color: #6b7280;">
-                Đang tải gợi ý...
+    <!-- Sản phẩm khác cùng mục đích -->
+    <div class="routine-recommendations-section">
+        <div class="routine-recommendations-wrapper">
+            <h2>Sản phẩm khác cùng mục đích</h2>
+            <!-- Slide container -->
+            <div class="routine-slider-container">
+                <!-- Nút điều hướng trái -->
+                <button id="routine-prev-btn" onclick="scrollRoutineProducts(-1)" 
+                        style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(139, 93, 51, 0.9); border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; z-index: 10; display: none; align-items: center; justify-content: center; font-size: 20px; color: white; transition: all 0.3s;"
+                        onmouseover="this.style.background='rgba(139, 93, 51, 1)'; this.style.transform='translateY(-50%) scale(1.1)';"
+                        onmouseout="this.style.background='rgba(139, 93, 51, 0.9)'; this.style.transform='translateY(-50%) scale(1)';">
+                    ‹
+                </button>
+                
+                <!-- Container sản phẩm -->
+                <div id="routine-products-wrapper">
+                    <div id="routine-products-container">
+                        <div style="text-align: center; padding: 40px; color: #6b7280; min-width: 100%;">
+                            Đang tải gợi ý...
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Nút điều hướng phải -->
+                <button id="routine-next-btn" onclick="scrollRoutineProducts(1)" 
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(139, 93, 51, 0.9); border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; z-index: 10; display: none; align-items: center; justify-content: center; font-size: 20px; color: white; transition: all 0.3s;"
+                        onmouseover="this.style.background='rgba(139, 93, 51, 1)'; this.style.transform='translateY(-50%) scale(1.1)';"
+                        onmouseout="this.style.background='rgba(139, 93, 51, 0.9)'; this.style.transform='translateY(-50%) scale(1)';">
+                    ›
+                </button>
             </div>
         </div>
     </div>
-</div>
 
 <script>
-async function loadRecommendations(type, buttonElement) {
-    // Update active tab
-    document.querySelectorAll('.rec-tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.borderBottomColor = 'transparent';
-        btn.style.color = '#6b7280';
-        btn.style.fontWeight = '500';
-    });
-    
-    buttonElement.classList.add('active');
-    buttonElement.style.borderBottomColor = '#3b82f6';
-    buttonElement.style.color = '#3b82f6';
-    buttonElement.style.fontWeight = '600';
-    
-    const container = document.getElementById('recommendations-container');
-    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Đang tải...</div>';
-    
-    try {
-        const response = await fetch(`/recommendations/${type}?limit=8`);
-        const data = await response.json();
-        
-        if (data.success && data.products && data.products.length > 0) {
-            container.innerHTML = data.products.map(product => {
-                const image = product.images && product.images.length > 0 
-                    ? `/storage/${product.images[0].image_path}` 
-                    : '/storage/placeholder.jpg';
-                const price = new Intl.NumberFormat('vi-VN').format(product.price);
-                
-                return `
-                    <div class="product-card" style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer;" 
-                         onclick="window.location.href='/products/${product.id}'"
-                         onmouseover="this.style.transform='translateY(-5px)'"
-                         onmouseout="this.style.transform='translateY(0)'">
-                        <img src="${image}" alt="${product.name}" style="width: 100%; height: 200px; object-fit: cover;">
-                        <div style="padding: 15px;">
-                            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #1f2937; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${product.name}</h3>
-                            <p style="font-size: 16px; font-weight: 700; color: #3b82f6; margin: 0;">${price} VNĐ</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        } else {
-            container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Không có sản phẩm gợi ý</div>';
-        }
-    } catch (error) {
-        console.error('Error loading recommendations:', error);
-        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #f44336;">Có lỗi xảy ra khi tải gợi ý</div>';
-    }
-}
-
-// Load content-based recommendations by default
-document.addEventListener('DOMContentLoaded', function() {
-    loadRecommendations('content-based', document.querySelector('.rec-tab-btn.active'));
-    
-    // Load routine recommendations
-    loadRoutineRecommendations();
-});
-
 // Load routine recommendations
+let routineCurrentIndex = 0;
+let routineProducts = [];
+
 async function loadRoutineRecommendations() {
     const container = document.getElementById('routine-products-container');
     const productId = {{ $product->id }};
     
     try {
-        const response = await fetch(`/recommendations/routine/${productId}?limit=6`);
+        const response = await fetch(`/recommendations/routine/${productId}?limit=20`);
         const data = await response.json();
         
         if (data.success && data.products && data.products.length > 0) {
+            routineProducts = data.products;
+            
+            // Tính toán kích thước mỗi sản phẩm (5 sản phẩm 1 hàng)
+            const containerWidth = container.parentElement.offsetWidth;
+            const gap = 20;
+            const productWidth = (containerWidth - (gap * 4)) / 5; // 4 gaps cho 5 sản phẩm
+            
             container.innerHTML = data.products.map(product => {
                 const image = product.images && product.images.length > 0 
                     ? `/storage/${product.images[0].image_path}` 
                     : '/storage/placeholder.jpg';
                 const price = new Intl.NumberFormat('vi-VN').format(product.price);
                 
-                return `
-                    <div class="product-card" style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer; border: 2px solid #e5e7eb;" 
-                         onclick="window.location.href='/products/${product.id}'"
-                         onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='#3b82f6';"
-                         onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#e5e7eb';">
-                        <img src="${image}" alt="${product.name}" style="width: 100%; height: 200px; object-fit: cover;">
-                        <div style="padding: 15px;">
-                            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #1f2937; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${product.name}</h3>
-                            <p style="font-size: 16px; font-weight: 700; color: #3b82f6; margin: 0;">${price} VNĐ</p>
+                const salesCount = product.sales_count || 0;
+                const reviewsCount = product.approved_reviews_count || 0;
+                const avgRating = product.avg_rating ? parseFloat(product.avg_rating).toFixed(1) : 0;
+                
+                let ratingHtml = '';
+                if (reviewsCount > 0) {
+                    ratingHtml = `
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <span style="color: #fbbf24; font-size: 14px;">★</span>
+                                <span style="font-size: 13px; font-weight: 600; color: #374151;">${avgRating}</span>
+                            </div>
+                            <span style="font-size: 12px; color: #6b7280;">(${reviewsCount} đánh giá)</span>
                         </div>
-                    </div>
+                    `;
+                } else {
+                    ratingHtml = '<span style="font-size: 12px; color: #9ca3af; font-style: italic;">Chưa có đánh giá</span>';
+                }
+                
+                let salesHtml = '';
+                if (salesCount > 0) {
+                    salesHtml = `<span style="font-size: 12px; color: #6b7280;">Đã bán: <strong style="color: #374151;">${new Intl.NumberFormat('vi-VN').format(salesCount)}</strong></span>`;
+                }
+                
+                return `
+                    <a href="/products/${product.id}" style="text-decoration: none; color: inherit; display: block; flex: 0 0 ${productWidth}px;">
+                        <div class="product-card" style="cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; height: 100%;" 
+                             onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)';"
+                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='';">
+                            <img src="${image}" alt="${product.name}" style="width: 100%; height: 190px; object-fit: cover; border-radius: 12px; margin-bottom: 8px;">
+                            <h4 style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; text-align: left; line-height: 1.3; min-height: calc(1.3em * 3); margin: 6px 0 4px 0; color: #4a4a4a; font-size: 0.95rem; font-weight: 600;">${product.name}</h4>
+                            <div class="product-price-action-wrapper" style="margin-top: 4px;">
+                                <p class="product-price" style="margin: 0 0 4px 0; color: #8b5d33; font-size: 0.95rem; font-weight: 700;">${price} VNĐ</p>
+                                <div class="product-rating" style="margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 18px;">
+                                    ${salesHtml}
+                                    ${ratingHtml}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
                 `;
             }).join('');
+            
+            // Hiển thị/ẩn nút điều hướng
+            updateRoutineNavigation();
         } else {
-            container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Không có sản phẩm gợi ý</div>';
+            container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280; min-width: 100%;">Không có sản phẩm gợi ý</div>';
         }
     } catch (error) {
         console.error('Error loading routine recommendations:', error);
-        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Không thể tải gợi ý</div>';
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280; min-width: 100%;">Không thể tải gợi ý</div>';
     }
 }
+
+function scrollRoutineProducts(direction) {
+    const container = document.getElementById('routine-products-container');
+    const wrapper = document.getElementById('routine-products-wrapper');
+    const containerWidth = wrapper.offsetWidth;
+    const gap = 20;
+    const productWidth = (containerWidth - (gap * 4)) / 5;
+    const scrollAmount = productWidth + gap;
+    
+    routineCurrentIndex += direction;
+    
+    // Giới hạn index
+    const maxIndex = Math.max(0, routineProducts.length - 5);
+    routineCurrentIndex = Math.max(0, Math.min(routineCurrentIndex, maxIndex));
+    
+    const translateX = -routineCurrentIndex * scrollAmount;
+    container.style.transform = `translateX(${translateX}px)`;
+    
+    updateRoutineNavigation();
+}
+
+function updateRoutineNavigation() {
+    const prevBtn = document.getElementById('routine-prev-btn');
+    const nextBtn = document.getElementById('routine-next-btn');
+    
+    if (routineProducts.length <= 5) {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+    } else {
+        prevBtn.style.display = 'flex';
+        nextBtn.style.display = 'flex';
+        
+        // Ẩn nút trái nếu ở đầu
+        if (routineCurrentIndex === 0) {
+            prevBtn.style.opacity = '0.5';
+            prevBtn.style.cursor = 'not-allowed';
+        } else {
+            prevBtn.style.opacity = '1';
+            prevBtn.style.cursor = 'pointer';
+        }
+        
+        // Ẩn nút phải nếu ở cuối
+        const maxIndex = routineProducts.length - 5;
+        if (routineCurrentIndex >= maxIndex) {
+            nextBtn.style.opacity = '0.5';
+            nextBtn.style.cursor = 'not-allowed';
+        } else {
+            nextBtn.style.opacity = '1';
+            nextBtn.style.cursor = 'pointer';
+        }
+    }
+}
+
+// Load routine recommendations
+document.addEventListener('DOMContentLoaded', function() {
+    loadRoutineRecommendations();
+});
 </script>
 @endsection

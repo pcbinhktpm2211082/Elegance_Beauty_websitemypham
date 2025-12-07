@@ -19,6 +19,23 @@ class RecommendationController extends Controller
     }
 
     /**
+     * Helper method để load đầy đủ dữ liệu cho products
+     */
+    private function loadProductData($query)
+    {
+        return $query->with(['images', 'category', 'classifications', 'variants' => function($q) {
+                $q->where('is_active', true);
+            }])
+            ->withCount(['reviews as approved_reviews_count' => function($q) {
+                $q->where('is_approved', true);
+            }])
+            ->withAvg(['reviews as avg_rating' => function($q) {
+                $q->where('is_approved', true);
+            }], 'rating')
+            ->selectRaw('products.*, (SELECT COALESCE(SUM(order_items.quantity), 0) FROM order_items INNER JOIN orders ON order_items.order_id = orders.id WHERE order_items.product_id = products.id AND orders.status IN ("processing", "shipped", "delivered")) as sales_count');
+    }
+
+    /**
      * Content-Based Filtering: Gợi ý dựa trên loại da và vấn đề da
      * Sử dụng RecommendationService với logic 4 bước
      */
@@ -29,13 +46,9 @@ class RecommendationController extends Controller
 
         if (!$user) {
             // Nếu chưa đăng nhập, trả về sản phẩm nổi bật
-            $products = Product::where('is_active', true)
-                ->where('is_featured', true)
-                ->with(['images', 'category', 'classifications', 'variants' => function($q) {
-                    $q->where('is_active', true);
-                }])
-                ->limit($limit)
-                ->get();
+            $products = $this->loadProductData(
+                Product::where('is_active', true)->where('is_featured', true)
+            )->limit($limit)->get();
             
             return response()->json([
                 'success' => true,
@@ -47,13 +60,9 @@ class RecommendationController extends Controller
 
         if (!$user->skin_type) {
             // Nếu chưa có thông tin da, trả về sản phẩm nổi bật
-            $products = Product::where('is_active', true)
-                ->where('is_featured', true)
-                ->with(['images', 'category', 'classifications', 'variants' => function($q) {
-                    $q->where('is_active', true);
-                }])
-                ->limit($limit)
-                ->get();
+            $products = $this->loadProductData(
+                Product::where('is_active', true)->where('is_featured', true)
+            )->limit($limit)->get();
             
             return response()->json([
                 'success' => true,
@@ -100,13 +109,9 @@ class RecommendationController extends Controller
 
         if ($recentViews->isEmpty()) {
             // Nếu chưa có lịch sử, trả về sản phẩm nổi bật
-            $products = Product::where('is_active', true)
-                ->where('is_featured', true)
-                ->with(['images', 'category', 'classifications', 'variants' => function($q) {
-                    $q->where('is_active', true);
-                }])
-                ->limit($limit)
-                ->get();
+            $products = $this->loadProductData(
+                Product::where('is_active', true)->where('is_featured', true)
+            )->limit($limit)->get();
             
             return response()->json([
                 'success' => true,
@@ -139,9 +144,9 @@ class RecommendationController extends Controller
         }
 
         // Tìm sản phẩm tương tự dựa trên phân loại
-        $query = Product::where('is_active', true)
-            ->whereNotIn('id', $viewedProductIds)
-            ->with(['images', 'category', 'classifications']);
+        $query = $this->loadProductData(
+            Product::where('is_active', true)->whereNotIn('id', $viewedProductIds)
+        );
 
         // Tìm sản phẩm có cùng loại da hoặc vấn đề da
         if (!empty($skinTypeIds) || !empty($skinConcernIds)) {
@@ -162,12 +167,11 @@ class RecommendationController extends Controller
             $categoryIds = $viewedProducts->pluck('category_id')->unique()->toArray();
             $existingIds = array_merge($viewedProductIds, $products->pluck('id')->toArray());
             
-            $additionalProducts = Product::where('is_active', true)
-                ->whereIn('category_id', $categoryIds)
-                ->whereNotIn('id', $existingIds)
-                ->with(['images', 'category', 'classifications'])
-                ->limit($limit - $products->count())
-                ->get();
+            $additionalProducts = $this->loadProductData(
+                Product::where('is_active', true)
+                    ->whereIn('category_id', $categoryIds)
+                    ->whereNotIn('id', $existingIds)
+            )->limit($limit - $products->count())->get();
             
             $products = $products->merge($additionalProducts);
         }
@@ -175,12 +179,11 @@ class RecommendationController extends Controller
         // Nếu vẫn không đủ, bổ sung sản phẩm nổi bật
         if ($products->count() < $limit) {
             $existingIds = array_merge($viewedProductIds, $products->pluck('id')->toArray());
-            $featuredProducts = Product::where('is_active', true)
-                ->where('is_featured', true)
-                ->whereNotIn('id', $existingIds)
-                ->with(['images', 'category', 'classifications'])
-                ->limit($limit - $products->count())
-                ->get();
+            $featuredProducts = $this->loadProductData(
+                Product::where('is_active', true)
+                    ->where('is_featured', true)
+                    ->whereNotIn('id', $existingIds)
+            )->limit($limit - $products->count())->get();
             
             $products = $products->merge($featuredProducts);
         }
@@ -234,11 +237,9 @@ class RecommendationController extends Controller
         $productCategoryId = $product->category_id;
 
         // Tìm sản phẩm có cùng mục đích (cùng skin_type và skin_concerns)
-        $query = Product::where('is_active', true)
-            ->where('id', '!=', $productId)
-            ->with(['images', 'category', 'classifications', 'variants' => function($q) {
-                $q->where('is_active', true);
-            }]);
+        $query = $this->loadProductData(
+            Product::where('is_active', true)->where('id', '!=', $productId)
+        );
 
         // Ưu tiên sản phẩm có cùng loại da và vấn đề da
         if (!empty($productSkinTypes) || !empty($productSkinConcerns)) {
@@ -258,12 +259,11 @@ class RecommendationController extends Controller
         if ($products->count() < $limit) {
             $existingIds = array_merge([$productId], $products->pluck('id')->toArray());
             
-            $additionalProducts = Product::where('is_active', true)
-                ->where('category_id', $productCategoryId)
-                ->whereNotIn('id', $existingIds)
-                ->with(['images', 'category', 'classifications'])
-                ->limit($limit - $products->count())
-                ->get();
+            $additionalProducts = $this->loadProductData(
+                Product::where('is_active', true)
+                    ->where('category_id', $productCategoryId)
+                    ->whereNotIn('id', $existingIds)
+            )->limit($limit - $products->count())->get();
             
             $products = $products->merge($additionalProducts);
         }
@@ -272,12 +272,11 @@ class RecommendationController extends Controller
         if ($products->count() < $limit) {
             $existingIds = array_merge([$productId], $products->pluck('id')->toArray());
             
-            $featuredProducts = Product::where('is_active', true)
-                ->where('is_featured', true)
-                ->whereNotIn('id', $existingIds)
-                ->with(['images', 'category', 'classifications'])
-                ->limit($limit - $products->count())
-                ->get();
+            $featuredProducts = $this->loadProductData(
+                Product::where('is_active', true)
+                    ->where('is_featured', true)
+                    ->whereNotIn('id', $existingIds)
+            )->limit($limit - $products->count())->get();
             
             $products = $products->merge($featuredProducts);
         }

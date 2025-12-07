@@ -9,6 +9,7 @@ use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\Attribute;
 use App\Models\ProductClassification;
+use App\Models\ProductType;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -41,7 +42,8 @@ class ProductController extends Controller
         $categories = Category::all();
         $skinTypes = ProductClassification::where('type', 'skin_type')->get();
         $skinConcerns = ProductClassification::where('type', 'skin_concern')->get();
-        return view('admin.products.create', compact('categories', 'skinTypes', 'skinConcerns'));
+        $productTypes = ProductType::orderBy('name')->get();
+        return view('admin.products.create', compact('categories', 'skinTypes', 'skinConcerns', 'productTypes'));
     }
 
     public function store(Request $request)
@@ -128,7 +130,8 @@ class ProductController extends Controller
         $categories = Category::all();
         $skinTypes = ProductClassification::where('type', 'skin_type')->get();
         $skinConcerns = ProductClassification::where('type', 'skin_concern')->get();
-        return view('admin.products.edit', compact('product', 'categories', 'skinTypes', 'skinConcerns'));
+        $productTypes = ProductType::orderBy('name')->get();
+        return view('admin.products.edit', compact('product', 'categories', 'skinTypes', 'skinConcerns', 'productTypes'));
     }
 
     public function update(Request $request, $id)
@@ -356,12 +359,42 @@ class ProductController extends Controller
         $product = Product::with([
             'images', 
             'category', 
-            'variants'
+            'variants' => function($query) {
+                $query->orderBy('is_active', 'desc')->orderBy('variant_name');
+            }
         ])->findOrFail($id);
 
         return view('admin.products.show', compact('product'));
     }
 
-    
+    /**
+     * Vô hiệu hóa/kích hoạt sản phẩm
+     */
+    public function toggleStatus($id)
+    {
+        $product = Product::findOrFail($id);
+        $product->is_active = !$product->is_active;
+        $product->save();
+
+        $status = $product->is_active ? 'kích hoạt' : 'vô hiệu hóa';
+        return redirect()->back()->with('success', "Đã {$status} sản phẩm thành công!");
+    }
+
+    /**
+     * Vô hiệu hóa/kích hoạt biến thể sản phẩm
+     */
+    public function toggleVariantStatus($productId, $variantId)
+    {
+        $product = Product::findOrFail($productId);
+        $variant = ProductVariant::where('id', $variantId)
+            ->where('product_id', $productId)
+            ->firstOrFail();
+        
+        $variant->is_active = !$variant->is_active;
+        $variant->save();
+
+        $status = $variant->is_active ? 'kích hoạt' : 'vô hiệu hóa';
+        return redirect()->back()->with('success', "Đã {$status} biến thể '{$variant->variant_name}' thành công!");
+    }
 
 }

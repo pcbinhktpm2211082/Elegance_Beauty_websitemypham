@@ -16,6 +16,13 @@
         </div>
     @endif
 
+    @if(session('info'))
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            {{ session('info') }}
+        </div>
+    @endif
+
     @if($errors->any())
         <div class="alert alert-error">
             <i class="fas fa-exclamation-circle"></i>

@@ -7,7 +7,8 @@
         <!-- Banners: Left slider + Right two static -->
         <section id="banners-grid" class="relative">
             <style>
-                #banners-grid{max-width:1400px;margin:0 auto;padding:50px 5%;box-sizing:border-box;background-color:#ffffff}
+                #banners-grid{width:100%;padding:50px 0;box-sizing:border-box;background-color:#ffffff}
+                #banners-grid .banners-grid-wrapper{max-width:1400px;margin:0 auto;padding:0 5%;box-sizing:border-box;width:100%}
                 #banners-grid .banners-grid{display:flex;gap:16px;align-items:stretch;width:100%}
                 #banners-grid .left-banner{flex:2;position:relative;min-width:0}
                 #banners-grid .right-banners{flex:1;display:flex;flex-direction:column;gap:16px;min-width:0}
@@ -36,7 +37,8 @@
                 }
             </style>
             @if(($leftBanners && $leftBanners->count() > 0) || $rightTop || $rightBottom)
-                <div class="banners-grid">
+                <div class="banners-grid-wrapper">
+                    <div class="banners-grid">
                     <div class="left-banner">
                         <div class="banner-card">
                             <div class="left-slider">
@@ -145,6 +147,7 @@
                         @endif
                     </div>
                 </div>
+                </div>
             @else
                 <div class="no-banner">
                     <p>Chưa có banner nào được thêm</p>
@@ -163,29 +166,8 @@
                     <div class="slider-track">
                         @forelse($featuredProducts as $product)
                             @if($product)
-                                <div class="product-card slider-item">
-                                    {{-- Hiển thị ảnh bìa sản phẩm --}}
-                                    @php
-                                        $cover = $product->coverOrFirstImage ?? null;
-                                    @endphp
-
-                                    @if($cover)
-                                        <img src="{{ asset('storage/' . $cover) }}" alt="{{ $product->name ?? 'Sản phẩm' }}">
-                                    @else
-                                        <img src="{{ asset('storage/placeholder.jpg') }}" alt="Không có ảnh">
-                                    @endif
-
-                                    <h4>{{ $product->name ?? 'Tên sản phẩm' }}</h4>
-                                    
-                                    <div class="product-price-action-wrapper">
-                                        <p class="product-price">{{ number_format($product->price ?? 0) }} VNĐ</p>
-                                        
-                                        <div class="product-actions">
-                                            <a href="{{ route('user.products.show', $product->id) }}" class="view-details">
-                                                Xem chi tiết
-                                            </a>
-                                        </div>
-                                    </div>
+                                <div class="slider-item">
+                                    <x-product-card :product="$product" />
                                 </div>
                             @endif
                         @empty
@@ -212,15 +194,11 @@
         </section>
 
         <!-- Gợi ý dành riêng cho bạn -->
-        <section id="personalized-recommendations" style="margin-top: 60px; padding: 40px 5%; background: #f9fafb;">
-            <div style="max-width: 1400px; margin: 0 auto;">
-                <h3 style="font-size: 28px; font-weight: 700; margin-bottom: 30px; text-align: center; color: #1f2937;">
-                    💡 Gợi ý dành riêng cho bạn
-                </h3>
-                <p style="text-align: center; color: #6b7280; margin-bottom: 30px; font-size: 16px;">
-                    Dựa trên hồ sơ da của bạn
-                </p>
-                <div id="personalized-products-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+        <section id="personalized-recommendations">
+            <div class="personalized-recommendations-wrapper">
+                <h3>Gợi ý dành riêng cho bạn</h3>
+                <p>Dựa trên hồ sơ da của bạn</p>
+                <div id="personalized-products-container">
                     <div style="text-align: center; padding: 40px; color: #6b7280;">
                         Đang tải gợi ý...
                     </div>
@@ -256,32 +234,19 @@
         }
 
         // Load personalized recommendations
+        let allPersonalizedProducts = [];
+        let displayedPersonalizedCount = 15; // Hiển thị 3 hàng (15 sản phẩm với 5 sản phẩm/hàng)
+        const maxPersonalizedProducts = 50; // Tối đa 10 hàng (50 sản phẩm)
+
         async function loadPersonalizedRecommendations() {
             const container = document.getElementById('personalized-products-container');
             try {
-                const response = await fetch('/recommendations/content-based?limit=8');
+                const response = await fetch('/recommendations/content-based?limit=' + maxPersonalizedProducts);
                 const data = await response.json();
                 
                 if (data.success && data.products && data.products.length > 0) {
-                    container.innerHTML = data.products.map(product => {
-                        const image = product.images && product.images.length > 0 
-                            ? `/storage/${product.images[0].image_path}` 
-                            : '/storage/placeholder.jpg';
-                        const price = new Intl.NumberFormat('vi-VN').format(product.price);
-                        
-                        return `
-                            <div class="product-card" style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer;" 
-                                 onclick="window.location.href='/products/${product.id}'"
-                                 onmouseover="this.style.transform='translateY(-5px)'"
-                                 onmouseout="this.style.transform='translateY(0)'">
-                                <img src="${image}" alt="${product.name}" style="width: 100%; height: 200px; object-fit: cover;">
-                                <div style="padding: 15px;">
-                                    <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #1f2937; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${product.name}</h4>
-                                    <p style="font-size: 16px; font-weight: 700; color: #3b82f6; margin: 0;">${price} VNĐ</p>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
+                    allPersonalizedProducts = data.products;
+                    displayPersonalizedProducts();
                 } else {
                     container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Chưa có thông tin da để gợi ý. <a href="/profile/edit" style="color: #3b82f6;">Cập nhật hồ sơ da của bạn</a></div>';
                 }
@@ -289,6 +254,84 @@
                 console.error('Error loading personalized recommendations:', error);
                 container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">Không thể tải gợi ý</div>';
             }
+        }
+
+        function displayPersonalizedProducts() {
+            const container = document.getElementById('personalized-products-container');
+            const productsToShow = allPersonalizedProducts.slice(0, displayedPersonalizedCount);
+            
+            container.innerHTML = productsToShow.map(product => {
+                        const image = product.images && product.images.length > 0 
+                            ? `/storage/${product.images[0].image_path}` 
+                            : '/storage/placeholder.jpg';
+                        const price = new Intl.NumberFormat('vi-VN').format(product.price);
+                        
+                        const salesCount = product.sales_count || 0;
+                        const reviewsCount = product.approved_reviews_count || 0;
+                        const avgRating = product.avg_rating ? parseFloat(product.avg_rating).toFixed(1) : 0;
+                        
+                        let ratingHtml = '';
+                        if (reviewsCount > 0) {
+                            ratingHtml = `
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <span style="color: #fbbf24; font-size: 14px;">★</span>
+                                        <span style="font-size: 13px; font-weight: 600; color: #374151;">${avgRating}</span>
+                                    </div>
+                                    <span style="font-size: 12px; color: #6b7280;">(${reviewsCount} đánh giá)</span>
+                                </div>
+                            `;
+                        } else {
+                            ratingHtml = '<span style="font-size: 12px; color: #9ca3af; font-style: italic;">Chưa có đánh giá</span>';
+                        }
+                        
+                        let salesHtml = '';
+                        if (salesCount > 0) {
+                            salesHtml = `<span style="font-size: 12px; color: #6b7280;">Đã bán: <strong style="color: #374151;">${new Intl.NumberFormat('vi-VN').format(salesCount)}</strong></span>`;
+                        }
+                        
+                        return `
+                            <a href="/products/${product.id}" style="text-decoration: none; color: inherit; display: block;">
+                                <div class="product-card" style="cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;" 
+                                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)';"
+                                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='';">
+                                    <img src="${image}" alt="${product.name}" style="width: 100%; height: 190px; object-fit: cover; border-radius: 12px; margin-bottom: 8px;">
+                                    <h4 style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; text-align: left; line-height: 1.3; min-height: calc(1.3em * 3); margin: 6px 0 4px 0; color: #4a4a4a; font-size: 0.95rem; font-weight: 600;">${product.name}</h4>
+                                    <div class="product-price-action-wrapper" style="margin-top: 4px;">
+                                        <p class="product-price" style="margin: 0 0 4px 0; color: #8b5d33; font-size: 0.95rem; font-weight: 700;">${price} VNĐ</p>
+                                        <div class="product-rating" style="margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 18px;">
+                                            ${salesHtml}
+                                            ${ratingHtml}
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        `;
+                    }).join('');
+            
+            // Thêm nút "Xem thêm" nếu còn sản phẩm chưa hiển thị
+            if (allPersonalizedProducts.length > displayedPersonalizedCount) {
+                const loadMoreBtn = document.createElement('div');
+                loadMoreBtn.style.textAlign = 'center';
+                loadMoreBtn.style.marginTop = '30px';
+                loadMoreBtn.innerHTML = `
+                    <button onclick="loadMorePersonalizedProducts()" 
+                            style="background-color: #8b5d33; color: white; border: none; padding: 12px 30px; 
+                                   border-radius: 5px; font-size: 16px; font-weight: 600; cursor: pointer; 
+                                   transition: background-color 0.3s ease;"
+                            onmouseover="this.style.backgroundColor='#6a4625'"
+                            onmouseout="this.style.backgroundColor='#8b5d33'">
+                        Xem thêm (${allPersonalizedProducts.length - displayedPersonalizedCount} sản phẩm)
+                    </button>
+                `;
+                container.appendChild(loadMoreBtn);
+            }
+        }
+
+        function loadMorePersonalizedProducts() {
+            // Tăng số lượng hiển thị thêm 15 sản phẩm (3 hàng)
+            displayedPersonalizedCount = Math.min(displayedPersonalizedCount + 15, maxPersonalizedProducts);
+            displayPersonalizedProducts();
         }
 
         // Load on page load

@@ -71,7 +71,7 @@
             </div>
 
             <div class="flex gap-2">
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-black rounded hover:bg-blue-700 transition">
+                <button type="submit" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition">
                     Lưu
                 </button>
                 <a href="{{ route('admin.banners.index') }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition">

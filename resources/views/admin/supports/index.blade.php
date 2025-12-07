@@ -47,7 +47,8 @@
     }
     .chat-messages {
         overflow-y: auto;
-        max-height: 60vh;
+        flex: 1;
+        min-height: 0;
         padding: 24px;
         gap: 16px;
         display: flex;
@@ -122,14 +123,24 @@
                             <p class="font-semibold">{{ $currentSupport->name }}</p>
                             <p class="text-xs text-gray-400">{{ $currentSupport->email }}</p>
                         </div>
+                        <form method="POST" action="{{ route('admin.supports.messages.delete', $currentSupport) }}" 
+                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa tất cả nội dung cuộc trò chuyện này?');" 
+                              class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" 
+                                    class="px-4 py-2 bg-red-500 hover:bg-red-600 text-black text-sm font-semibold rounded-lg transition-colors">
+                                Xóa cuộc trò chuyện
+                            </button>
+                        </form>
                 </div>
 
-                <div class="chat-messages" id="admin-chat-messages"
+                <div class="chat-messages flex-1" id="admin-chat-messages"
                      data-fragment-url="{{ route('admin.supports.messages.fragment', $currentSupport) }}">
                     @include('admin.supports._messages', ['support' => $currentSupport, 'messages' => $currentSupport->messages])
                 </div>
 
-                <form method="POST" action="{{ route('admin.supports.messages.store', $currentSupport) }}" class="border-t border-gray-200 px-6 py-4 space-y-3" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('admin.supports.messages.store', $currentSupport) }}" class="border-t border-gray-200 px-6 py-4 space-y-3 mt-auto" enctype="multipart/form-data">
                     @csrf
                     <textarea name="message" rows="3" class="chat-input" placeholder="Aa">{{ old('message') }}</textarea>
                     @error('message')

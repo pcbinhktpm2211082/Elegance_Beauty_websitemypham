@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Support;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class SupportController extends Controller
 {
@@ -140,5 +141,21 @@ class SupportController extends Controller
         $support->save();
 
         return redirect()->route('admin.supports.index')->with('success', 'Đã đánh dấu đã hủy');
+    }
+
+    public function deleteMessages(Support $support)
+    {
+        // Xóa tất cả file đính kèm trước
+        foreach ($support->messages as $message) {
+            if ($message->attachment_path && Storage::disk('public')->exists($message->attachment_path)) {
+                Storage::disk('public')->delete($message->attachment_path);
+            }
+        }
+
+        // Xóa tất cả tin nhắn trong cuộc trò chuyện
+        $support->messages()->delete();
+
+        return redirect()->route('admin.supports.index', ['support_id' => $support->id])
+            ->with('success', 'Đã xóa tất cả nội dung cuộc trò chuyện.');
     }
 }

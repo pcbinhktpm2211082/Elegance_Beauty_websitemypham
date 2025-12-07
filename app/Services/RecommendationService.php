@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Models\ProductType;
 use App\Models\ProductView;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -13,10 +14,23 @@ class RecommendationService
     /**
      * Bước 1: Sàng lọc Loại Sản phẩm (Product Type Bypass)
      * Xác định các sản phẩm được bỏ qua bộ lọc Loại da
+     * Kiểm tra từ bảng product_types: nếu requires_skin_type_filter = FALSE thì bỏ qua filter
      */
-    private function getBypassProductTypes(): array
+    private function shouldBypassSkinTypeFilter(?string $productTypeName): bool
     {
-        return ['Lip Balm', 'Body Lotion', 'Makeup'];
+        if (!$productTypeName) {
+            return false; // Nếu không có product_type, áp dụng filter
+        }
+
+        $productType = ProductType::where('name', $productTypeName)->first();
+        
+        // Nếu không tìm thấy trong bảng product_types, mặc định áp dụng filter (an toàn)
+        if (!$productType) {
+            return false;
+        }
+
+        // Nếu requires_skin_type_filter = FALSE, bỏ qua filter
+        return !$productType->requires_skin_type_filter;
     }
 
     /**
@@ -25,16 +39,15 @@ class RecommendationService
      */
     private function applyHardFilter(Collection $products, User $user): Collection
     {
-        $bypassTypes = $this->getBypassProductTypes();
         $userSkinTypeName = $this->getUserSkinTypeName($user);
 
         if (!$userSkinTypeName) {
             return $products;
         }
 
-        return $products->filter(function ($product) use ($bypassTypes, $userSkinTypeName) {
-            // Bỏ qua filter cho các loại sản phẩm đặc biệt
-            if ($product->product_type && in_array($product->product_type, $bypassTypes)) {
+        return $products->filter(function ($product) use ($userSkinTypeName) {
+            // Bỏ qua filter cho các loại sản phẩm có requires_skin_type_filter = FALSE
+            if ($this->shouldBypassSkinTypeFilter($product->product_type)) {
                 return true;
             }
 
@@ -176,6 +189,13 @@ class RecommendationService
                     $q->where('is_active', true);
                 }
             ])
+            ->withCount(['reviews as approved_reviews_count' => function($q) {
+                $q->where('is_approved', true);
+            }])
+            ->withAvg(['reviews as avg_rating' => function($q) {
+                $q->where('is_approved', true);
+            }], 'rating')
+            ->selectRaw('products.*, (SELECT COALESCE(SUM(order_items.quantity), 0) FROM order_items INNER JOIN orders ON order_items.order_id = orders.id WHERE order_items.product_id = products.id AND orders.status IN ("processing", "shipped", "delivered")) as sales_count')
             ->get();
 
         // Bước 1: Đã lấy tất cả sản phẩm (không cần xử lý gì ở đây)
@@ -229,6 +249,13 @@ class RecommendationService
                     $q->where('is_active', true);
                 }
             ])
+            ->withCount(['reviews as approved_reviews_count' => function($q) {
+                $q->where('is_approved', true);
+            }])
+            ->withAvg(['reviews as avg_rating' => function($q) {
+                $q->where('is_approved', true);
+            }], 'rating')
+            ->selectRaw('products.*, (SELECT COALESCE(SUM(order_items.quantity), 0) FROM order_items INNER JOIN orders ON order_items.order_id = orders.id WHERE order_items.product_id = products.id AND orders.status IN ("processing", "shipped", "delivered")) as sales_count')
             ->limit($needed)
             ->get();
 

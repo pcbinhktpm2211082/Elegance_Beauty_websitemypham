@@ -163,7 +163,13 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     // Quản lý danh mục, sản phẩm, người dùng, đơn hàng
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
+    Route::post('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggle-status');
+    Route::post('products/{product}/variants/{variant}/toggle-status', [ProductController::class, 'toggleVariantStatus'])->name('products.variants.toggle-status');
     Route::resource('product-classifications', \App\Http\Controllers\Admin\ProductClassificationController::class)->except(['show', 'create', 'edit']);
+    Route::post('product-classifications/product-types', [\App\Http\Controllers\Admin\ProductClassificationController::class, 'storeProductType'])->name('product-classifications.store-product-type');
+    Route::put('product-classifications/product-types/{productType}', [\App\Http\Controllers\Admin\ProductClassificationController::class, 'updateProductType'])->name('product-classifications.update-product-type');
+    Route::delete('product-classifications/product-types/{productType}', [\App\Http\Controllers\Admin\ProductClassificationController::class, 'destroyProductType'])->name('product-classifications.destroy-product-type');
+    Route::resource('product-types', \App\Http\Controllers\Admin\ProductTypeController::class);
     Route::resource('users', UserController::class);
     Route::resource('banners', BannerController::class);
     Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
@@ -180,6 +186,7 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::post('supports/{support}/processing', [SupportController::class, 'markProcessing'])->name('supports.processing');
     Route::post('supports/{support}/cancelled', [SupportController::class, 'markCancelled'])->name('supports.cancelled');
     Route::post('supports/{support}/messages', [SupportController::class, 'sendMessage'])->name('supports.messages.store');
+    Route::delete('supports/{support}/messages', [SupportController::class, 'deleteMessages'])->name('supports.messages.delete');
     // Quản lý đánh giá sản phẩm
     Route::get('reviews', [AdminProductReviewController::class, 'index'])->name('reviews.index');
     Route::post('reviews/{review}/reply', [AdminProductReviewController::class, 'reply'])->name('reviews.reply');

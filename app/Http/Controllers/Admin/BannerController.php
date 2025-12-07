@@ -27,7 +27,7 @@ class BannerController extends Controller
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'required|image|max:2048',
             'link' => 'nullable|url',
             'order' => 'nullable|integer',
             'is_active' => 'nullable|boolean',
@@ -83,19 +83,27 @@ class BannerController extends Controller
 
     public function update(Request $request, Banner $banner)
     {
-        $validated = $request->validate([
+        // Validation rules cơ bản
+        $rules = [
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'link' => 'nullable|url',
             'order' => 'nullable|integer',
             'is_active' => 'nullable|boolean',
             'position' => ['required', Rule::in(['left','right_top','right_bottom'])],
+            'image' => 'nullable|sometimes|image|max:2048',
+        ];
+
+        $validated = $request->validate($rules, [
+            'image.image' => 'File phải là hình ảnh',
+            'image.max' => 'Kích thước file không được vượt quá 2MB',
         ]);
 
         Log::info('Banner update request', [
             'banner_id' => $banner->id,
             'position_in_request' => $request->input('position'),
+            'has_image' => $request->hasFile('image'),
+            'image_valid' => $request->hasFile('image') ? $request->file('image')->isValid() : false,
             'validated' => $validated,
         ]);
 
@@ -112,31 +120,56 @@ class BannerController extends Controller
             }
         }
 
+        // Chỉ xử lý ảnh nếu có file mới được upload
         if ($request->hasFile('image')) {
-            // Xóa ảnh cũ
-            if ($banner->image) {
-                Storage::disk('public')->delete($banner->image);
+            try {
+                $file = $request->file('image');
+                
+                // Kiểm tra file hợp lệ
+                if (!$file->isValid()) {
+                    return back()->withInput()->withErrors([
+                        'image' => 'File không hợp lệ. Vui lòng chọn file khác.'
+                    ]);
+                }
+
+                // Xóa ảnh cũ
+                if ($banner->image) {
+                    Storage::disk('public')->delete($banner->image);
+                }
+                
+                // Lưu ảnh mới
+                $banner->image = $file->store('banners', 'public');
+                Log::info('Banner image updated', [
+                    'banner_id' => $banner->id,
+                    'new_image_path' => $banner->image,
+                    'file_size' => $file->getSize(),
+                    'file_mime' => $file->getMimeType(),
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Error updating banner image', [
+                    'banner_id' => $banner->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                return back()->withInput()->withErrors([
+                    'image' => 'Có lỗi xảy ra khi lưu ảnh: ' . $e->getMessage()
+                ]);
             }
-            $validated['image'] = $request->file('image')->store('banners', 'public');
         }
 
-        $validated['is_active'] = $request->has('is_active');
-
-        // Update explicitly field by field
         $banner->title = $validated['title'] ?? null;
         $banner->description = $validated['description'] ?? null;
-        if (array_key_exists('image', $validated)) {
-            $banner->image = $validated['image'];
-        }
         $banner->link = $validated['link'] ?? null;
         $banner->order = (int)($validated['order'] ?? 0);
-        $banner->is_active = (bool)$validated['is_active'];
+        $banner->is_active = $request->has('is_active');
         $banner->position = $validated['position'];
         $banner->save();
+        
         $saved = $banner->fresh();
         Log::info('Banner updated', [
             'id' => $saved->id,
             'position_saved' => $saved->position,
+            'image_path' => $saved->image,
         ]);
 
         return redirect()->route('admin.banners.index')->with('success', 'Banner đã được cập nhật thành công!');

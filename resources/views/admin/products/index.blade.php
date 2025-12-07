@@ -60,7 +60,8 @@
                     <th class="border px-4 py-2">Giá</th>
                     <th class="border px-4 py-2">Số lượng</th>
                     <th class="border px-4 py-2">Danh mục</th>
-                    <th class="border px-4 py-2">Nổi bật</th> <!-- Cột mới -->
+                    <th class="border px-4 py-2">Nổi bật</th>
+                    <th class="border px-4 py-2">Trạng thái</th>
                     <th class="border px-4 py-2">Thao tác</th>
                 </tr>
             </thead>
@@ -87,13 +88,27 @@
                                 <span class="text-gray-500">Không</span>
                             @endif
                         </td>
+                        <td class="border px-4 py-2 text-center">
+                            @if ($product->is_active)
+                                <span class="text-green-600 font-semibold">Kích hoạt</span>
+                            @else
+                                <span class="text-red-600 font-semibold">Vô hiệu hóa</span>
+                            @endif
+                        </td>
                         <td class="border px-4 py-2">
-                            <div class="flex justify-center flex-wrap gap-4">
+                            <div class="flex justify-center flex-wrap gap-2">
                                 <a href="{{ route('admin.products.edit', $product->id) }}" 
                                    class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded hover:bg-yellow-200 transition text-xs font-medium">
                                    ✏️ Sửa
                                 </a>
-                                <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xoá?')">
+                                <form action="{{ route('admin.products.toggle-status', $product->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" 
+                                            class="inline-block px-3 py-1 {{ $product->is_active ? 'bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200' : 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200' }} border rounded transition text-xs font-medium">
+                                            {{ $product->is_active ? '🚫 Vô hiệu hóa' : '✅ Kích hoạt' }}
+                                    </button>
+                                </form>
+                                <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xoá?')" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" 

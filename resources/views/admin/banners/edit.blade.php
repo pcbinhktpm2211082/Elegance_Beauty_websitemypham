@@ -46,7 +46,7 @@
                 @if($banner->image)
                     <div class="mt-2">
                         <img src="{{ asset('storage/' . $banner->image) }}" alt="Banner" 
-                             class="max-w-xs max-h-48 w-auto h-auto object-contain border border-gray-300 rounded shadow-sm">
+                             class="max-w-64 max-h-40 w-auto h-auto object-contain border border-gray-300 rounded shadow-sm">
                     </div>
                 @endif
             </div>
@@ -81,8 +81,8 @@
             </div>
 
             <div class="flex gap-2">
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                    Cập nhật
+                <button type="submit" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition">
+                    Lưu
                 </button>
                 <a href="{{ route('admin.banners.index') }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition">
                     Hủy

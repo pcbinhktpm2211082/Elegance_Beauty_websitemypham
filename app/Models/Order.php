@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Order extends Model
 {
@@ -93,5 +95,134 @@ class Order extends Model
     {
         $shipping = (float) $this->total_price - (float) $this->subtotal;
         return $shipping > 0 ? $shipping : 0.0;
+    }
+
+    /**
+     * Giảm số lượng sản phẩm khi đơn hàng được xác nhận
+     */
+    public function reduceProductQuantities(): void
+    {
+        try {
+            DB::beginTransaction();
+            
+            $items = $this->orderItems()->with(['product', 'order'])->get();
+            
+            foreach ($items as $item) {
+                if ($item->variant_id) {
+                    // Nếu có variant, giảm số lượng variant
+                    $variant = \App\Models\ProductVariant::find($item->variant_id);
+                    if ($variant) {
+                        $oldQuantity = $variant->quantity;
+                        $newQuantity = max(0, $oldQuantity - $item->quantity);
+                        $variant->update(['quantity' => $newQuantity]);
+                        Log::info('Reduced variant quantity', [
+                            'variant_id' => $variant->id,
+                            'order_item_quantity' => $item->quantity,
+                            'old_quantity' => $oldQuantity,
+                            'new_quantity' => $newQuantity
+                        ]);
+                    }
+                } else {
+                    // Nếu không có variant, giảm số lượng sản phẩm
+                    $product = $item->product;
+                    if ($product) {
+                        $oldQuantity = $product->quantity;
+                        $newQuantity = max(0, $oldQuantity - $item->quantity);
+                        $product->update(['quantity' => $newQuantity]);
+                        Log::info('Reduced product quantity', [
+                            'product_id' => $product->id,
+                            'order_item_quantity' => $item->quantity,
+                            'old_quantity' => $oldQuantity,
+                            'new_quantity' => $newQuantity
+                        ]);
+                    }
+                }
+            }
+            
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error reducing product quantities', [
+                'order_id' => $this->id,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Khôi phục số lượng sản phẩm khi đơn hàng bị hủy
+     */
+    public function restoreProductQuantities(): void
+    {
+        try {
+            DB::beginTransaction();
+            
+            $items = $this->orderItems()->with(['product', 'order'])->get();
+            
+            foreach ($items as $item) {
+                if ($item->variant_id) {
+                    // Nếu có variant, khôi phục số lượng variant
+                    $variant = \App\Models\ProductVariant::find($item->variant_id);
+                    if ($variant) {
+                        $oldQuantity = $variant->quantity;
+                        $newQuantity = $oldQuantity + $item->quantity;
+                        $variant->update(['quantity' => $newQuantity]);
+                        Log::info('Restored variant quantity', [
+                            'variant_id' => $variant->id,
+                            'order_item_quantity' => $item->quantity,
+                            'old_quantity' => $oldQuantity,
+                            'new_quantity' => $newQuantity
+                        ]);
+                    }
+                } else {
+                    // Nếu không có variant, khôi phục số lượng sản phẩm
+                    $product = $item->product;
+                    if ($product) {
+                        $oldQuantity = $product->quantity;
+                        $newQuantity = $oldQuantity + $item->quantity;
+                        $product->update(['quantity' => $newQuantity]);
+                        Log::info('Restored product quantity', [
+                            'product_id' => $product->id,
+                            'order_item_quantity' => $item->quantity,
+                            'old_quantity' => $oldQuantity,
+                            'new_quantity' => $newQuantity
+                        ]);
+                    }
+                }
+            }
+            
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error restoring product quantities', [
+                'order_id' => $this->id,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Xử lý khi status thay đổi
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updating(function ($order) {
+            $originalStatus = $order->getOriginal('status');
+            $newStatus = $order->status;
+
+            // Nếu đơn hàng chuyển từ pending sang processing, giảm số lượng
+            if ($originalStatus === 'pending' && $newStatus === 'processing') {
+                $order->reduceProductQuantities();
+            }
+            
+            // Nếu đơn hàng chuyển từ processing/shipped/delivered sang cancelled, khôi phục số lượng
+            if (in_array($originalStatus, ['processing', 'shipped', 'delivered']) && $newStatus === 'cancelled') {
+                $order->restoreProductQuantities();
+            }
+        });
     }
 }

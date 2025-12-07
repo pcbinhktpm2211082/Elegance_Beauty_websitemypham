@@ -36,6 +36,12 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended('/admin/dashboard');
         }
 
+        // Kiểm tra nếu user chưa điền đầy đủ thông tin cá nhân thì redirect đến trang chỉnh sửa profile
+        if ($user && !$user->hasCompleteProfile()) {
+            return redirect()->route('profile.edit')
+                ->with('info', 'Vui lòng điền đầy đủ thông tin cá nhân để tiếp tục sử dụng dịch vụ.');
+        }
+
         // Redirect to home page
         return redirect('/');
     }

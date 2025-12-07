@@ -31,6 +31,57 @@
     @include('user.partials.footer')
 
     {{-- JS dùng chung --}}
+    {{-- Chặn scroll ngang hoàn toàn --}}
+    <script>
+        // Chặn scroll ngang bằng JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Chặn scroll ngang
+            function preventHorizontalScroll(e) {
+                if (e.deltaX !== 0) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+
+            // Chặn scroll ngang bằng wheel
+            document.addEventListener('wheel', preventHorizontalScroll, { passive: false });
+            document.addEventListener('touchmove', function(e) {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            // Đảm bảo không có scroll ngang
+            function preventHorizontalScrollEvent(e) {
+                if (e.keyCode === 37 || e.keyCode === 39) { // Left/Right arrow keys
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                    }
+                }
+            }
+            document.addEventListener('keydown', preventHorizontalScrollEvent);
+
+            // Đặt scrollLeft = 0 liên tục
+            setInterval(function() {
+                if (document.documentElement.scrollLeft !== 0) {
+                    document.documentElement.scrollLeft = 0;
+                }
+                if (document.body.scrollLeft !== 0) {
+                    document.body.scrollLeft = 0;
+                }
+                // Kiểm tra header
+                const header = document.querySelector('header');
+                if (header && header.scrollLeft !== 0) {
+                    header.scrollLeft = 0;
+                }
+                const headerTop = document.querySelector('.header-top');
+                if (headerTop && headerTop.scrollLeft !== 0) {
+                    headerTop.scrollLeft = 0;
+                }
+            }, 100);
+        });
+    </script>
     {{-- Nếu có JS riêng --}}
     @stack('scripts')
 </body>

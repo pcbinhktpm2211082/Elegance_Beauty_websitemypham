@@ -84,4 +84,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(ProductView::class);
     }
+
+    /**
+     * Kiểm tra xem user đã điền đầy đủ thông tin cá nhân chưa
+     * 
+     * @return bool
+     */
+    public function hasCompleteProfile(): bool
+    {
+        // Kiểm tra các trường thông tin cá nhân cơ bản
+        return !empty($this->name) 
+            && !empty($this->phone) 
+            && !empty($this->gender) 
+            && !empty($this->dob) 
+            && !empty($this->skin_type);
+    }
 }

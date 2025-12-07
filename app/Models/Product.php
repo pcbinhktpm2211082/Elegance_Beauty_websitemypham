@@ -110,4 +110,49 @@ class Product extends Model
         return $this->hasMany(ProductView::class);
     }
 
+    /**
+     * Lấy đánh giá đã được duyệt
+     */
+    public function approvedReviews()
+    {
+        return $this->reviews()->where('is_approved', true);
+    }
+
+    /**
+     * Tính điểm đánh giá trung bình
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        $avg = $this->approvedReviews()->avg('rating');
+        return $avg ? round($avg, 1) : 0;
+    }
+
+    /**
+     * Lấy số lượng đánh giá đã được duyệt
+     */
+    public function getReviewsCountAttribute(): int
+    {
+        return $this->approvedReviews()->count();
+    }
+
+    /**
+     * Lấy các order items của sản phẩm
+     */
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Tính số lượt bán (tổng quantity từ order_items của các order đã xác nhận)
+     */
+    public function getSalesCountAttribute(): int
+    {
+        return $this->orderItems()
+            ->whereHas('order', function($q) {
+                $q->whereIn('status', ['processing', 'shipped', 'delivered']);
+            })
+            ->sum('quantity');
+    }
+
 }

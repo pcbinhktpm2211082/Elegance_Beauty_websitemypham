@@ -1,38 +1,40 @@
 <header>
-    <div class="logo">
-        <h1>Elegance Beauty</h1>
-    </div>
-    <nav>
-        <ul>
-            <li><a href="{{ url('/') }}" class="{{ Request::is('/') ? 'active' : '' }}">Trang Chủ</a></li>
-            <li><a href="{{ route('products.index') }}">Sản Phẩm</a></li>
-            <li><a href="{{ url('/about') }}" class="{{ Request::is('about') ? 'active' : '' }}">Về Chúng Tôi</a></li>
-            <li><a href="{{ route('contact.index') }}" class="{{ Request::is('contact') ? 'active' : '' }}">Liên Hệ</a></li>
-        </ul>
-    </nav>
-    <div class="header-icons">
-        <div class="search-container">
-            <a href="#" class="icon-search" id="searchToggle">
-                <i class="fas fa-search"></i>
+    <div class="header-top">
+        <div class="header-content-wrapper">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo">
+            <a href="{{ url('/') }}" style="text-decoration: none; color: inherit;">
+                <h1>Elegance Beauty</h1>
             </a>
-            <div class="search-dropdown" id="searchDropdown">
-                <div class="search-box">
-                    <input type="text" 
-                           id="headerSearch" 
-                           placeholder="Tìm kiếm sản phẩm..."
-                           class="search-input">
-                    <button type="button" id="searchBtn" class="search-button">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-                <div class="search-results" id="searchResults"></div>
-            </div>
         </div>
-        <a href="{{ route('cart.index') }}" class="icon-cart">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="cart-count" id="cartCount">0</span>
-        </a>
-        <div class="profile-container">
+        <nav class="header-nav" id="headerNav">
+            <ul>
+                <li><a href="{{ url('/') }}" class="{{ Request::is('/') ? 'active' : '' }}">Trang Chủ</a></li>
+                <li><a href="{{ route('products.index') }}">Sản Phẩm</a></li>
+                <li><a href="{{ url('/about') }}" class="{{ Request::is('about') ? 'active' : '' }}">Về Chúng Tôi</a></li>
+                <li><a href="{{ route('contact.index') }}" class="{{ Request::is('contact') ? 'active' : '' }}">Liên Hệ</a></li>
+            </ul>
+        </nav>
+        <div class="search-container-top">
+            <div class="search-box">
+                <input type="text" 
+                       id="headerSearch" 
+                       placeholder="Tìm kiếm sản phẩm..."
+                       class="search-input">
+                <button type="button" id="searchBtn" class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+        <div class="header-icons">
+            <a href="{{ route('cart.index') }}" class="icon-cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+            <div class="profile-container">
             <a href="#" class="icon-account" id="profileToggle">
                 <i class="fas fa-user"></i>
             </a>
@@ -117,7 +119,56 @@ document.addEventListener('DOMContentLoaded', function() {
     
     initSearch();
     initProfileDropdown(); // Initialize profile dropdown
+    initMobileMenu(); // Initialize mobile menu
 });
+
+function initMobileMenu() {
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const headerNav = document.getElementById('headerNav');
+    
+    if (mobileMenuToggle && headerNav) {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            headerNav.classList.toggle('active');
+            const icon = mobileMenuToggle.querySelector('i');
+            if (icon) {
+                if (headerNav.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+
+        // Đóng menu khi click vào link
+        const navLinks = headerNav.querySelectorAll('a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                headerNav.classList.remove('active');
+                const icon = mobileMenuToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+        });
+
+        // Đóng menu khi click bên ngoài
+        document.addEventListener('click', function(e) {
+            if (!mobileMenuToggle.contains(e.target) && !headerNav.contains(e.target)) {
+                headerNav.classList.remove('active');
+                const icon = mobileMenuToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+    }
+}
 
 function loadCartCount() {
     // Chỉ load cart count nếu user đã đăng nhập
@@ -159,25 +210,20 @@ function loadCartCount() {
 }
 
 function initSearch() {
-    const searchToggle = document.getElementById('searchToggle');
-    const searchDropdown = document.getElementById('searchDropdown');
     const headerSearch = document.getElementById('headerSearch');
     const searchBtn = document.getElementById('searchBtn');
     const searchResults = document.getElementById('searchResults');
 
-    // Toggle search dropdown
-    searchToggle.addEventListener('click', function(e) {
-        e.preventDefault();
-        searchDropdown.classList.toggle('active');
-        if (searchDropdown.classList.contains('active')) {
-            headerSearch.focus();
+    // Show/hide search results on focus/blur
+    headerSearch.addEventListener('focus', function() {
+        if (this.value.trim().length >= 2) {
+            performSearch(this.value.trim());
         }
     });
 
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
-        if (!searchToggle.contains(e.target) && !searchDropdown.contains(e.target)) {
-            searchDropdown.classList.remove('active');
+        if (!headerSearch.contains(e.target) && !searchResults.contains(e.target) && !searchBtn.contains(e.target)) {
             searchResults.innerHTML = '';
         }
     });
