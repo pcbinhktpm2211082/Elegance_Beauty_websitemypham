@@ -125,6 +125,7 @@ Route::middleware(['auth'])->group(function () {
     // Orders routes
     Route::get('/orders', [UserOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [UserOrderController::class, 'show'])->name('orders.show');
+    Route::get('/orders/{order}/unreviewed-products', [UserOrderController::class, 'getUnreviewedProducts'])->name('orders.unreviewed-products');
     // Vouchers (USER)
     Route::get('/vouchers', [UserVoucherController::class, 'index'])->name('user.vouchers.index');
     Route::post('/orders/{order}/cancel', [UserOrderController::class, 'cancel'])->name('orders.cancel');

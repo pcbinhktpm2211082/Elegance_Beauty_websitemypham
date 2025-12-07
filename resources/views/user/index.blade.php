@@ -38,7 +38,7 @@
             </style>
             @if(($leftBanners && $leftBanners->count() > 0) || $rightTop || $rightBottom)
                 <div class="banners-grid-wrapper">
-                    <div class="banners-grid">
+                <div class="banners-grid">
                     <div class="left-banner">
                         <div class="banner-card">
                             <div class="left-slider">
@@ -146,7 +146,7 @@
                             </div>
                         @endif
                     </div>
-                </div>
+                    </div>
                 </div>
             @else
                 <div class="no-banner">

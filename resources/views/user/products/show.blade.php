@@ -28,9 +28,9 @@
                 @endphp
                 
                 @if ($cover)
-                    <img id="main-image" src="{{ asset('storage/' . $cover) }}" alt="{{ $product->name }}" class="main-product-image">
+                    <img id="main-image" src="{{ asset('storage/' . $cover) }}" alt="{{ $product->name }}" class="main-product-image" onclick="openProductImageModal(this.src)" style="cursor: pointer;">
                 @else
-                    <img id="main-image" src="{{ asset('storage/placeholder.jpg') }}" alt="Không có ảnh" class="main-product-image">
+                    <img id="main-image" src="{{ asset('storage/placeholder.jpg') }}" alt="Không có ảnh" class="main-product-image" onclick="openProductImageModal(this.src)" style="cursor: pointer;">
                 @endif
                 
                 <!-- Nút điều hướng slide -->
@@ -207,7 +207,7 @@
             @endif
         </div>
     </div>
-
+    
     <!-- Phần mô tả sản phẩm -->
     <div class="product-description-section">
         <div class="description-tabs">
@@ -320,6 +320,22 @@
     </div>
 </div>
 
+<!-- Modal xem ảnh sản phẩm phóng to -->
+<div id="product-image-modal" class="product-image-modal">
+    <div class="product-image-modal-content">
+        <button type="button" class="product-image-modal-close" onclick="closeProductImageModal()" aria-label="Đóng">
+            <i class="fas fa-times"></i>
+        </button>
+        <button type="button" class="product-image-modal-nav product-image-modal-prev" onclick="changeModalImage(-1)" aria-label="Ảnh trước">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <img id="product-image-modal-img" src="" alt="{{ $product->name }}" class="product-image-modal-image">
+        <button type="button" class="product-image-modal-nav product-image-modal-next" onclick="changeModalImage(1)" aria-label="Ảnh sau">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+</div>
+
 <!-- Modal xem ảnh đánh giá -->
 <div id="review-image-modal"
      style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
@@ -361,6 +377,114 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Product images:', productImages);
     console.log('Variant images:', variantImages);
     console.log('All images:', allImages);
+});
+
+// Modal xem ảnh sản phẩm phóng to
+function openProductImageModal(src) {
+    const modal = document.getElementById('product-image-modal');
+    const img = document.getElementById('product-image-modal-img');
+    if (!modal || !img) return;
+    
+    // Cập nhật ảnh và index hiện tại
+    img.src = src;
+    currentImageIndex = allImages.indexOf(src);
+    if (currentImageIndex === -1) {
+        currentImageIndex = 0;
+    }
+    
+    // Hiển thị modal
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Ngăn scroll khi modal mở
+    
+    // Cập nhật nút điều hướng
+    updateModalNavigation();
+}
+
+function closeProductImageModal() {
+    const modal = document.getElementById('product-image-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // Khôi phục scroll
+    }
+}
+
+function changeModalImage(direction) {
+    if (allImages.length === 0) return;
+    
+    currentImageIndex += direction;
+    
+    if (currentImageIndex >= allImages.length) {
+        currentImageIndex = 0;
+    } else if (currentImageIndex < 0) {
+        currentImageIndex = allImages.length - 1;
+    }
+    
+    const newImageSrc = allImages[currentImageIndex];
+    const img = document.getElementById('product-image-modal-img');
+    if (img) {
+        img.src = newImageSrc;
+    }
+    
+    // Cập nhật thumbnail active
+    document.querySelectorAll('.thumbnail').forEach((thumb) => {
+        if (thumb.src === newImageSrc || thumb.src.includes(newImageSrc.split('/').pop())) {
+            thumb.classList.add('active');
+        } else {
+            thumb.classList.remove('active');
+        }
+    });
+    
+    // Cập nhật ảnh chính
+    const mainImage = document.getElementById('main-image');
+    if (mainImage) {
+        mainImage.src = newImageSrc;
+    }
+    
+    updateModalNavigation();
+}
+
+function updateModalNavigation() {
+    const prevBtn = document.querySelector('.product-image-modal-prev');
+    const nextBtn = document.querySelector('.product-image-modal-next');
+    
+    if (allImages.length <= 1) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+    } else {
+        if (prevBtn) prevBtn.style.display = 'flex';
+        if (nextBtn) nextBtn.style.display = 'flex';
+    }
+}
+
+// Đóng modal khi click vào background
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('product-image-modal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeProductImageModal();
+            }
+        });
+    }
+    
+    // Đóng modal bằng phím ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeProductImageModal();
+        }
+    });
+    
+    // Điều hướng bằng phím mũi tên
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('product-image-modal');
+        if (modal && modal.style.display === 'flex') {
+            if (e.key === 'ArrowLeft') {
+                changeModalImage(-1);
+            } else if (e.key === 'ArrowRight') {
+                changeModalImage(1);
+            }
+        }
+    });
 });
 
 // Modal xem ảnh đánh giá
@@ -702,7 +826,7 @@ function showNotification(message, type) {
                         onmouseover="this.style.background='rgba(139, 93, 51, 1)'; this.style.transform='translateY(-50%) scale(1.1)';"
                         onmouseout="this.style.background='rgba(139, 93, 51, 0.9)'; this.style.transform='translateY(-50%) scale(1)';">
                     ‹
-                </button>
+            </button>
                 
                 <!-- Container sản phẩm -->
                 <div id="routine-products-wrapper">
@@ -711,8 +835,8 @@ function showNotification(message, type) {
                             Đang tải gợi ý...
                         </div>
                     </div>
-                </div>
-                
+        </div>
+        
                 <!-- Nút điều hướng phải -->
                 <button id="routine-next-btn" onclick="scrollRoutineProducts(1)" 
                         style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(139, 93, 51, 0.9); border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; z-index: 10; display: none; align-items: center; justify-content: center; font-size: 20px; color: white; transition: all 0.3s;"
@@ -720,9 +844,9 @@ function showNotification(message, type) {
                         onmouseout="this.style.background='rgba(139, 93, 51, 0.9)'; this.style.transform='translateY(-50%) scale(1)';">
                     ›
                 </button>
-            </div>
         </div>
     </div>
+</div>
 
 <script>
 // Load routine recommendations

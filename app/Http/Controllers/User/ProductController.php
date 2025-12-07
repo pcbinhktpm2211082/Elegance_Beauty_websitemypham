@@ -129,7 +129,7 @@ class ProductController extends Controller
         }
         
 
-        $products = $query->paginate(12)->appends($request->query());
+        $products = $query->paginate(20)->appends($request->query());
         
         // Lọc biến thể không hoạt động cho từng sản phẩm
         $products->getCollection()->transform(function($product) {

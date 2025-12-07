@@ -169,8 +169,8 @@ class RecommendationController extends Controller
             
             $additionalProducts = $this->loadProductData(
                 Product::where('is_active', true)
-                    ->whereIn('category_id', $categoryIds)
-                    ->whereNotIn('id', $existingIds)
+                ->whereIn('category_id', $categoryIds)
+                ->whereNotIn('id', $existingIds)
             )->limit($limit - $products->count())->get();
             
             $products = $products->merge($additionalProducts);
@@ -181,8 +181,8 @@ class RecommendationController extends Controller
             $existingIds = array_merge($viewedProductIds, $products->pluck('id')->toArray());
             $featuredProducts = $this->loadProductData(
                 Product::where('is_active', true)
-                    ->where('is_featured', true)
-                    ->whereNotIn('id', $existingIds)
+                ->where('is_featured', true)
+                ->whereNotIn('id', $existingIds)
             )->limit($limit - $products->count())->get();
             
             $products = $products->merge($featuredProducts);
@@ -261,8 +261,8 @@ class RecommendationController extends Controller
             
             $additionalProducts = $this->loadProductData(
                 Product::where('is_active', true)
-                    ->where('category_id', $productCategoryId)
-                    ->whereNotIn('id', $existingIds)
+                ->where('category_id', $productCategoryId)
+                ->whereNotIn('id', $existingIds)
             )->limit($limit - $products->count())->get();
             
             $products = $products->merge($additionalProducts);
@@ -274,8 +274,8 @@ class RecommendationController extends Controller
             
             $featuredProducts = $this->loadProductData(
                 Product::where('is_active', true)
-                    ->where('is_featured', true)
-                    ->whereNotIn('id', $existingIds)
+                ->where('is_featured', true)
+                ->whereNotIn('id', $existingIds)
             )->limit($limit - $products->count())->get();
             
             $products = $products->merge($featuredProducts);

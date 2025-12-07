@@ -67,4 +67,59 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Lấy danh sách sản phẩm chưa đánh giá trong đơn hàng
+     */
+    public function getUnreviewedProducts(Order $order)
+    {
+        // Kiểm tra xem order có thuộc về user hiện tại không
+        if ($order->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền xem đơn hàng này.'
+            ], 403);
+        }
+
+        // Chỉ cho phép đánh giá đơn hàng đã hoàn thành
+        if ($order->status !== 'delivered') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Chỉ có thể đánh giá đơn hàng đã hoàn thành.'
+            ], 400);
+        }
+
+        $user = Auth::user();
+        $unreviewedProducts = [];
+
+        foreach ($order->orderItems as $item) {
+            $product = $item->product;
+            if (!$product) {
+                continue;
+            }
+
+            // Kiểm tra xem sản phẩm đã được đánh giá cho đơn hàng này chưa
+            $existingReview = \App\Models\ProductReview::where('product_id', $product->id)
+                ->where('user_id', $user->id)
+                ->where('order_id', $order->id)
+                ->first();
+
+            if (!$existingReview) {
+                $cover = $product->coverOrFirstImage;
+                $unreviewedProducts[] = [
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'product_image' => $cover ? asset('storage/' . $cover) : asset('storage/placeholder.jpg'),
+                    'quantity' => $item->quantity,
+                    'order_item_id' => $item->id,
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'products' => $unreviewedProducts,
+            'order_id' => $order->id,
+        ]);
+    }
 }

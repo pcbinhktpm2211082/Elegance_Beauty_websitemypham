@@ -37,7 +37,7 @@
         <!-- Bộ lọc nằm ngang ở trên -->
         <div class="products-filters-horizontal" style="background:#fff; border:1px solid #f1e6d3; border-radius:15px; padding:24px; margin-bottom:30px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);">
             <form id="filtersForm" method="GET" action="{{ route('products.index') }}" class="filters-form-horizontal">
-                <input type="hidden" name="search" value="{{ request('search') }}" />
+                    <input type="hidden" name="search" value="{{ request('search') }}" />
 
                 <!-- Hàng trên: Danh mục, Loại da, Tình trạng da, Giá -->
                 <div style="display:flex; gap:20px; align-items:flex-end; flex-wrap:nowrap; overflow-x:auto; margin-bottom:20px; justify-content:space-between;">
@@ -50,7 +50,7 @@
                                 <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                             @endforeach
                         </select>
-                    </div>
+                        </div>
 
                     <!-- Loại da -->
                     <div class="filter-group" style="flex:1; min-width:160px; flex-shrink:0;">
@@ -72,7 +72,7 @@
                                 <option value="{{ $skinConcern->id }}" {{ request('skin_concern') == $skinConcern->id ? 'selected' : '' }}>{{ $skinConcern->name }}</option>
                             @endforeach
                         </select>
-                    </div>
+                            </div>
 
                     <!-- Giá -->
                     <div class="filter-group" style="flex:1; min-width:200px; flex-shrink:0;">
@@ -88,7 +88,7 @@
                                    onblur="this.style.borderColor='#f1e6d3';">
                         </div>
                     </div>
-                </div>
+                    </div>
 
                 <!-- Hàng dưới: Sắp xếp và Nút hành động -->
                 <div style="display:flex; gap:16px; align-items:flex-end; flex-wrap:nowrap;">

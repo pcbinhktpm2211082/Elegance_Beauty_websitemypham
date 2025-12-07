@@ -10,7 +10,7 @@
 
     <!-- Nút quay lại -->
     <div class="mb-6 text-left">
-        <a href="{{ route('admin.orders.index') }}"
+        <a href="{{ route('admin.orders.index', request()->only(['status', 'search'])) }}"
            class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
             ← Quay lại danh sách
         </a>
@@ -122,6 +122,13 @@
         
         <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST">
             @csrf
+            <!-- Hidden input để giữ lại query params filter ban đầu (không phải status mới của đơn hàng) -->
+            @if(request('status'))
+                <input type="hidden" name="filter_status" value="{{ request('status') }}">
+            @endif
+            @if(request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+            @endif
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-500 mb-2">Trạng thái mới</label>

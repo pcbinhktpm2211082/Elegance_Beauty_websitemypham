@@ -132,10 +132,10 @@ class BannerController extends Controller
                     ]);
                 }
 
-                // Xóa ảnh cũ
-                if ($banner->image) {
-                    Storage::disk('public')->delete($banner->image);
-                }
+            // Xóa ảnh cũ
+            if ($banner->image) {
+                Storage::disk('public')->delete($banner->image);
+            }
                 
                 // Lưu ảnh mới
                 $banner->image = $file->store('banners', 'public');

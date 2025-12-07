@@ -4,25 +4,25 @@
     <div class="product-card" style="cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;" 
          onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)';"
          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='';">
-        @php
-            $cover = $product->coverOrFirstImage;
-        @endphp
+    @php
+        $cover = $product->coverOrFirstImage;
+    @endphp
 
-        @if ($cover)
-            <img src="{{ asset('storage/' . $cover) }}" 
+    @if ($cover)
+        <img src="{{ asset('storage/' . $cover) }}" 
                  alt="{{ $product->name }}"
                  style="width: 100%; height: 190px; object-fit: cover; border-radius: 12px; margin-bottom: 8px; display: block;">
-        @else
-            <img src="{{ asset('storage/placeholder.jpg') }}" 
+    @else
+        <img src="{{ asset('storage/placeholder.jpg') }}" 
                  alt="Không có ảnh"
                  style="width: 100%; height: 190px; object-fit: cover; border-radius: 12px; margin-bottom: 8px; display: block;">
-        @endif
+    @endif
 
         <h4 style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; text-align: left; line-height: 1.3; min-height: calc(1.3em * 3); margin: 6px 0 4px 0;">{{ $product->name }}</h4>
-        
+    
         <div class="product-price-action-wrapper" style="margin-top: 4px;">
             <p class="product-price" style="margin: 0 0 4px 0;">{{ number_format($product->price, 0, ',', '.') }} VNĐ</p>
-            
+        
             {{-- Hiển thị số lượt bán và đánh giá --}}
             <div class="product-rating" style="margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 18px;">
                 @php
@@ -48,7 +48,7 @@
                 @else
                     <span style="font-size: 12px; color: #9ca3af; font-style: italic;">Chưa có đánh giá</span>
                 @endif
-            </div>
         </div>
     </div>
+</div>
 </a>

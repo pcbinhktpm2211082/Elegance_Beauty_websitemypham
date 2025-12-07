@@ -110,18 +110,14 @@
                                     Xem chi tiết
                                 </a>
                                 @if($order->status === 'delivered')
-                                    @php $firstProduct = optional($order->orderItems->first())->product; @endphp
-                                    @if($firstProduct)
-                                        <button type="button"
-                                                class="review-order-btn"
-                                                style="border:none; border-radius:999px; padding:8px 14px; background:linear-gradient(135deg,#b45309,#92400e); color:#fff; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;"
-                                                data-product-id="{{ $firstProduct->id }}"
-                                                data-product-name="{{ $firstProduct->name }}"
-                                                onclick="openOrderReviewModal(this.dataset.productId, this.dataset.productName)">
-                                            <i class="fas fa-star"></i>
-                                            Đánh giá
-                                        </button>
-                                    @endif
+                                    <button type="button"
+                                            class="review-order-btn"
+                                            style="border:none; border-radius:999px; padding:8px 14px; background:linear-gradient(135deg,#b45309,#92400e); color:#fff; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;"
+                                            data-order-id="{{ $order->id }}"
+                                            onclick="openOrderReviewModal({{ $order->id }})">
+                                        <i class="fas fa-star"></i>
+                                        Đánh giá
+                                    </button>
                                 @elseif($order->status === 'pending')
                                     <button class="cancel-order-btn" onclick="cancelOrder({{ $order->id }})">
                                         <i class="fas fa-times"></i>
@@ -155,49 +151,28 @@
 <div id="order-review-modal"
      data-review-base-url="{{ url('/products') }}"
      onclick="if(event.target === this) closeOrderReviewModal()"
-     style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:9999; align-items:center; justify-content:center;">
+     style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:9999; align-items:center; justify-content:center; overflow-y:auto;">
     <div id="order-review-modal-box"
-         style="position:relative; max-width:640px; width:100%; margin:0 16px; background:#ffffff; border-radius:16px; box-shadow:0 20px 50px rgba(15,23,42,0.35); padding:20px 24px;">
+         style="position:relative; max-width:700px; width:100%; margin:20px 16px; background:#ffffff; border-radius:16px; box-shadow:0 20px 50px rgba(15,23,42,0.35); padding:24px; max-height:90vh; overflow-y:auto;">
         <button type="button"
                 onclick="closeOrderReviewModal()"
-                style="position:absolute; top:10px; right:14px; border:none; background:none; cursor:pointer; color:#6b7280;">
+                style="position:absolute; top:10px; right:14px; border:none; background:none; cursor:pointer; color:#6b7280; font-size:20px; z-index:10;">
             ✕
         </button>
-        <h3 style="font-size:18px; font-weight:600; margin-bottom:8px;">
-            Đánh giá sản phẩm <span id="order-review-product-name" style="color:#b45309;"></span>
+        <h3 style="font-size:20px; font-weight:600; margin-bottom:8px; color:#111827;">
+            Đánh giá sản phẩm trong đơn hàng
         </h3>
-        <p style="font-size:13px; color:#6b7280; margin-bottom:16px;">
-            Bạn chỉ có thể đánh giá khi đơn hàng đã được giao thành công.
+        <p style="font-size:13px; color:#6b7280; margin-bottom:20px;">
+            Vui lòng đánh giá các sản phẩm bạn đã mua. Mỗi sản phẩm chỉ được đánh giá một lần.
         </p>
 
-        <form id="order-review-form" method="POST" action="" enctype="multipart/form-data">
-            @csrf
-            <div class="rating-input" style="margin-bottom:12px;">
-                <label style="display:block; font-size:14px; font-weight:500; margin-bottom:6px;">Số sao:</label>
-                <div class="star-selector" id="order-review-stars" style="display:flex; gap:6px;">
-                    @for($i=1;$i<=5;$i++)
-                        <label style="cursor:pointer;">
-                            <input type="radio" name="rating" value="{{ $i }}" {{ $i==5 ? 'checked' : '' }} style="display:none;">
-                            <span data-value="{{ $i }}" style="font-size:20px; color:{{ $i <= 5 ? '#fbbf24' : '#d1d5db' }};">★</span>
-                        </label>
-                    @endfor
-                </div>
+        <!-- Danh sách sản phẩm chưa đánh giá -->
+        <div id="unreviewed-products-list" style="margin-bottom:20px;">
+            <div style="text-align:center; padding:40px 20px; color:#9ca3af;">
+                <i class="fas fa-spinner fa-spin" style="font-size:24px; margin-bottom:10px;"></i>
+                <p>Đang tải danh sách sản phẩm...</p>
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
-                <label for="order-review-comment" style="display:block; font-size:14px; font-weight:500; margin-bottom:6px;">Nhận xét của bạn</label>
-                <textarea id="order-review-comment" name="comment" rows="4"
-                          style="width:100%; border-radius:10px; border:1px solid #d1d5db; padding:8px 10px; font-size:13px;"
-                          placeholder="Chất lượng sản phẩm, trải nghiệm sử dụng..."></textarea>
-            </div>
-            <div class="form-group" style="margin-bottom:16px;">
-                <label for="order-review-images" style="display:block; font-size:14px; font-weight:500; margin-bottom:6px;">Ảnh kèm theo (tối đa 5 ảnh)</label>
-                <input type="file" name="images[]" id="order-review-images" accept="image/*" multiple>
-            </div>
-            <button type="submit"
-                    style="border:none; border-radius:999px; padding:10px 18px; background:linear-gradient(135deg,#b45309,#92400e); color:#fff; font-size:13px; font-weight:600; cursor:pointer;">
-                Gửi đánh giá
-            </button>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -227,22 +202,225 @@ function cancelOrder(orderId) {
     }
 }
 
-function openOrderReviewModal(productId, productName) {
-    const modal = document.getElementById('order-review-modal');
-    const box   = document.getElementById('order-review-modal-box');
-    const form  = document.getElementById('order-review-form');
-    const nameSpan = document.getElementById('order-review-product-name');
-    const baseUrl  = modal.dataset.reviewBaseUrl;
+let currentOrderId = null;
 
-    if (!modal || !box || !form) return;
-    form.action = baseUrl + '/' + productId + '/reviews';
-    if (nameSpan) nameSpan.textContent = productName || '';
+function openOrderReviewModal(orderId) {
+    const modal = document.getElementById('order-review-modal');
+    const listContainer = document.getElementById('unreviewed-products-list');
+    
+    if (!modal || !listContainer) return;
+    
+    currentOrderId = orderId;
     modal.style.display = 'flex';
+    
+    // Load danh sách sản phẩm chưa đánh giá
+    loadUnreviewedProducts(orderId);
+}
+
+function loadUnreviewedProducts(orderId) {
+    const listContainer = document.getElementById('unreviewed-products-list');
+    if (!listContainer) return;
+    
+    listContainer.innerHTML = `
+        <div style="text-align:center; padding:40px 20px; color:#9ca3af;">
+            <i class="fas fa-spinner fa-spin" style="font-size:24px; margin-bottom:10px;"></i>
+            <p>Đang tải danh sách sản phẩm...</p>
+        </div>
+    `;
+    
+    fetch(`/orders/${orderId}/unreviewed-products`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.products.length > 0) {
+            renderUnreviewedProducts(data.products);
+        } else {
+            listContainer.innerHTML = `
+                <div style="text-align:center; padding:40px 20px; color:#9ca3af;">
+                    <i class="fas fa-check-circle" style="font-size:48px; color:#10b981; margin-bottom:15px;"></i>
+                    <p style="font-size:16px; font-weight:500; color:#374151;">Bạn đã đánh giá tất cả sản phẩm trong đơn hàng này!</p>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error loading unreviewed products:', error);
+        listContainer.innerHTML = `
+            <div style="text-align:center; padding:40px 20px; color:#ef4444;">
+                <i class="fas fa-exclamation-circle" style="font-size:24px; margin-bottom:10px;"></i>
+                <p>Có lỗi xảy ra khi tải danh sách sản phẩm.</p>
+            </div>
+        `;
+    });
+}
+
+function renderUnreviewedProducts(products) {
+    const listContainer = document.getElementById('unreviewed-products-list');
+    if (!listContainer) return;
+    
+    const baseUrl = document.getElementById('order-review-modal').dataset.reviewBaseUrl;
+    
+    listContainer.innerHTML = products.map((product, index) => `
+        <div class="product-review-item" data-product-id="${product.product_id}" style="border:1px solid #e5e7eb; border-radius:12px; padding:16px; margin-bottom:16px; background:#f9fafb;">
+            <div style="display:flex; gap:12px; margin-bottom:12px;">
+                <img src="${product.product_image}" alt="${product.product_name}" 
+                     style="width:80px; height:80px; object-fit:cover; border-radius:8px; border:1px solid #e5e7eb;">
+                <div style="flex:1;">
+                    <h4 style="font-size:15px; font-weight:600; color:#111827; margin-bottom:4px;">${product.product_name}</h4>
+                    <p style="font-size:13px; color:#6b7280;">Số lượng: ${product.quantity}</p>
+                </div>
+            </div>
+            
+            <form class="product-review-form" data-product-id="${product.product_id}" data-product-name="${product.product_name}" 
+                  method="POST" action="${baseUrl}/${product.product_id}/reviews" enctype="multipart/form-data" 
+                  style="margin-top:12px;">
+                @csrf
+                <input type="hidden" name="order_id" value="${currentOrderId}">
+                <div style="margin-bottom:12px;">
+                    <label style="display:block; font-size:13px; font-weight:500; margin-bottom:6px; color:#374151;">Số sao:</label>
+                    <div class="star-selector" style="display:flex; gap:6px;">
+                        ${[1,2,3,4,5].map(i => `
+                            <label style="cursor:pointer;">
+                                <input type="radio" name="rating" value="${i}" ${i===5 ? 'checked' : ''} style="display:none;">
+                                <span data-value="${i}" style="font-size:20px; color:${i <= 5 ? '#fbbf24' : '#d1d5db'}; transition:color 0.2s;">★</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="display:block; font-size:13px; font-weight:500; margin-bottom:6px; color:#374151;">Nhận xét:</label>
+                    <textarea name="comment" rows="3" 
+                              style="width:100%; border-radius:8px; border:1px solid #d1d5db; padding:8px 10px; font-size:13px; resize:vertical;"
+                              placeholder="Chất lượng sản phẩm, trải nghiệm sử dụng..."></textarea>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="display:block; font-size:13px; font-weight:500; margin-bottom:6px; color:#374151;">Ảnh kèm theo (tối đa 5 ảnh):</label>
+                    <input type="file" name="images[]" accept="image/*" multiple 
+                           style="width:100%; font-size:13px; padding:6px; border:1px solid #d1d5db; border-radius:8px;">
+                </div>
+                <button type="submit" 
+                        style="width:100%; border:none; border-radius:8px; padding:10px 18px; background:linear-gradient(135deg,#b45309,#92400e); color:#fff; font-size:13px; font-weight:600; cursor:pointer; transition:opacity 0.2s;">
+                    <i class="fas fa-star"></i> Gửi đánh giá
+                </button>
+            </form>
+        </div>
+    `).join('');
+    
+    // Khởi tạo star selector cho mỗi form
+    listContainer.querySelectorAll('.star-selector').forEach(starContainer => {
+        const labels = starContainer.querySelectorAll('label');
+        labels.forEach(label => {
+            label.addEventListener('click', function() {
+                const input = this.querySelector('input[type="radio"]');
+                const value = parseInt(input.value);
+                input.checked = true;
+                
+                labels.forEach(lb => {
+                    const span = lb.querySelector('span');
+                    const starVal = parseInt(span.getAttribute('data-value'));
+                    span.style.color = starVal <= value ? '#fbbf24' : '#d1d5db';
+                });
+            });
+        });
+    });
+    
+    // Xử lý submit form
+    listContainer.querySelectorAll('.product-review-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitProductReview(this);
+        });
+    });
+}
+
+function submitProductReview(form) {
+    const productId = form.dataset.productId;
+    const productName = form.dataset.productName;
+    const formData = new FormData(form);
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Xóa sản phẩm đã đánh giá khỏi danh sách
+            const productItem = form.closest('.product-review-item');
+            if (productItem) {
+                productItem.style.transition = 'opacity 0.3s, transform 0.3s';
+                productItem.style.opacity = '0';
+                productItem.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    productItem.remove();
+                    // Kiểm tra xem còn sản phẩm nào không
+                    const remainingProducts = document.querySelectorAll('.product-review-item');
+                    if (remainingProducts.length === 0) {
+                        loadUnreviewedProducts(currentOrderId);
+                    }
+                }, 300);
+            }
+            
+            // Hiển thị thông báo thành công
+            showNotification('Đánh giá thành công!', 'success');
+        } else {
+            alert('Có lỗi xảy ra: ' + (data.message || 'Vui lòng thử lại.'));
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    })
+    .catch(error => {
+        console.error('Error submitting review:', error);
+        alert('Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.3s';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
 function closeOrderReviewModal() {
     const modal = document.getElementById('order-review-modal');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+        currentOrderId = null;
+    }
 }
 
 // Khởi tạo chọn sao cho pop-up đánh giá đơn hàng
