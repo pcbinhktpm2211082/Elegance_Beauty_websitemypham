@@ -749,6 +749,14 @@ async function addToCart() {
             },
             body: JSON.stringify(data)
         });
+
+        // Nếu chưa đăng nhập, chuyển tới trang đăng nhập và giữ lại URL hiện tại để redirect lại
+        if (response.status === 401) {
+            const current = window.location.href;
+            window.location.href = '{{ route('login') }}?redirect=' + encodeURIComponent(current);
+            return false;
+        }
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
