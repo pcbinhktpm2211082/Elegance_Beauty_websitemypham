@@ -36,11 +36,11 @@
             <div class="flex justify-between items-center mt-6">
                 <a href="{{ route('admin.product-types.index') }}" 
                    class="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
-                    ← Quay lại
+                    Quay lại
                 </a>
                 <button type="submit" 
-                        class="px-4 py-2 bg-green-100 text-green-700 border border-green-300 rounded hover:bg-green-200 transition text-sm font-semibold">
-                    💾 Cập nhật
+                        class="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
+                    Cập nhật
                 </button>
             </div>
         </form>

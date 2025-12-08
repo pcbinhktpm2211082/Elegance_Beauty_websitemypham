@@ -31,13 +31,13 @@
             <input type="text" name="search" placeholder="Tìm tên sản phẩm..." value="{{ request('search') }}" 
                    class="border border-gray-300 rounded px-3 py-1 flex-grow text-sm">
 
-            <button type="submit" class="px-4 py-1 bg-blue-100 text-blue-700 border border-blue-300 rounded hover:bg-blue-200 transition text-sm font-semibold">
+            <button type="submit" class="px-4 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
                 Tìm kiếm
             </button>
             
             @if(request('search') || request('category_id'))
                 <a href="{{ route('admin.products.index') }}" class="px-4 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
-                    🔄 Làm mới
+                    Làm mới
                 </a>
             @endif
         </form>
@@ -96,24 +96,25 @@
                             @endif
                         </td>
                         <td class="border px-4 py-2">
-                            <div class="flex justify-center flex-wrap gap-2">
+                            <div class="flex justify-center flex-wrap gap-2 items-center">
                                 <a href="{{ route('admin.products.edit', $product->id) }}" 
-                                   class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded hover:bg-yellow-200 transition text-xs font-medium">
-                                   ✏️ Sửa
+                                   class="inline-block px-3 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                                   Sửa
                                 </a>
                                 <form action="{{ route('admin.products.toggle-status', $product->id) }}" method="POST" class="inline">
                                     @csrf
                                     <button type="submit" 
-                                            class="inline-block px-3 py-1 {{ $product->is_active ? 'bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200' : 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200' }} border rounded transition text-xs font-medium">
-                                            {{ $product->is_active ? '🚫 Vô hiệu hóa' : '✅ Kích hoạt' }}
+                                            class="inline-block px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 border rounded transition text-xs font-medium whitespace-nowrap flex-shrink-0"
+                                            style="white-space: nowrap !important;">
+                                            {{ $product->is_active ? 'Vô hiệu' : 'Kích hoạt' }}
                                     </button>
                                 </form>
                                 <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xoá?')" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" 
-                                            class="inline-block px-3 py-1 bg-red-100 text-red-700 border border-red-300 rounded hover:bg-red-200 transition text-xs font-medium">
-                                            🗑️ Xoá
+                                            class="inline-block px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                                            Xóa
                                     </button>
                                 </form>
                             </div>

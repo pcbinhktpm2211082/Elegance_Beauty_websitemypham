@@ -66,16 +66,16 @@
                         @endif
                     </td>
                     <td class="border px-4 py-2">
-                        <div class="flex justify-center flex-wrap gap-2">
+                        <div class="flex justify-center flex-wrap gap-2 items-center">
                             <a href="{{ route('admin.banners.edit', $banner) }}" 
-                               class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded hover:bg-yellow-200 transition text-xs font-medium">
-                               ✏️ Sửa
+                               class="inline-block px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                               Sửa
                             </a>
                             <form method="POST" action="{{ route('admin.banners.destroy', $banner) }}" onsubmit="return confirm('Bạn có chắc muốn xoá?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="inline-block px-3 py-1 bg-red-100 text-red-700 border border-red-300 rounded hover:bg-red-200 transition text-xs font-medium">
-                                    🗑️ Xoá
+                                <button type="submit" class="inline-block px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                                    Xóa
                                 </button>
                             </form>
                         </div>

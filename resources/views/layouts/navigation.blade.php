@@ -30,30 +30,35 @@
 @endphp
 
 <nav class="h-full flex flex-col" aria-label="Left admin navigation">
-    <div class="px-5 py-6 border-b border-gray-200">
-        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
-            <div class="h-10 w-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-lg font-semibold">
-                TA
-            </div>
-            <div>
-                <p class="text-[10px] uppercase tracking-[0.3em] text-indigo-400">TailAdmin</p>
-                <p class="text-lg font-semibold text-gray-900">Cosmetic Admin</p>
+    <div class="px-5 py-6 border-b border-gray-200" style="border-bottom: 1px solid #e5e7eb !important;">
+        <a href="{{ route('admin.dashboard') }}" 
+           class="admin-logo-link" 
+           style="display: flex !important; align-items: center !important; text-decoration: none !important; width: 100% !important; box-sizing: border-box !important;">
+            <div class="admin-logo-text" 
+                 style="flex: 1 1 auto !important; min-width: 0 !important; display: flex !important; flex-direction: column !important; gap: 2px !important; overflow: hidden !important;">
+                <p class="admin-logo-subtitle" 
+                   style="color: #9ca3af !important; margin: 0 !important; padding: 0 !important; line-height: 1.2 !important; font-size: 10px !important; font-weight: 400 !important; text-transform: uppercase !important; letter-spacing: 0.3em !important; font-family: 'Roboto', sans-serif !important; white-space: nowrap !important;">Elegance</p>
+                <p class="admin-logo-title" 
+                   style="color: #1f2937 !important; margin: 0 !important; padding: 0 !important; font-family: 'Playfair Display', 'Georgia', serif !important; font-size: 1.125rem !important; font-weight: 600 !important; line-height: 1.3 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;">Beauty Admin</p>
             </div>
         </a>
-                    </div>
+    </div>
 
     <div class="flex-1 overflow-y-auto px-5 py-7">
         <div class="flex flex-col" style="gap: 1.5rem;">
             @foreach ($menuItems as $item)
                 @php $isActive = request()->routeIs($item['match']); @endphp
                 <a href="{{ route($item['route']) }}"
-                   class="flex items-center gap-3 rounded-2xl pl-4 pr-5 py-3.5 text-lg font-semibold border-l-4 transition {{ $isActive ? 'bg-indigo-50 text-indigo-700 shadow-inner border-indigo-500' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-transparent' }}">
-                    <span class="flex h-11 w-11 items-center justify-center rounded-xl border {{ $isActive ? 'border-indigo-200 bg-white' : 'border-gray-200 bg-white' }}">
-                        <svg class="h-5 w-5 {{ $isActive ? 'text-indigo-500' : 'text-gray-400' }}" fill="currentColor" viewBox="0 0 24 24">
+                   class="flex items-center gap-3 rounded-2xl pl-4 pr-5 py-3.5 text-lg font-semibold border-l-4 transition {{ $isActive ? 'shadow-inner border-transparent' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-transparent' }}"
+                   style="{{ $isActive ? 'background-color: #f3f4f6; color: #1f2937; border-left-color: #374151 !important;' : '' }}">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-xl border {{ $isActive ? 'bg-white' : 'border-gray-200 bg-white' }}"
+                          style="{{ $isActive ? 'border-color: #d1d5db !important;' : '' }}">
+                        <svg class="h-5 w-5 {{ $isActive ? '' : 'text-gray-400' }}" fill="currentColor" viewBox="0 0 24 24"
+                             style="{{ $isActive ? 'color: #374151;' : '' }}">
                             {!! $icon($item['icon']) !!}
                         </svg>
                     </span>
-                    <span class="{{ $isActive ? 'text-indigo-700' : 'text-gray-700' }}">{{ $item['label'] }}</span>
+                    <span style="{{ $isActive ? 'color: #1f2937;' : '' }}">{{ $item['label'] }}</span>
                 </a>
             @endforeach
         </div>

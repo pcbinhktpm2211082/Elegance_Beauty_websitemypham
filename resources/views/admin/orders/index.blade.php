@@ -20,7 +20,7 @@
             <input type="text" name="search" placeholder="Tìm mã đơn, khách..." value="{{ request('search') }}" 
                    class="border border-gray-300 rounded px-3 py-1 flex-grow text-sm">
 
-            <button type="submit" class="px-4 py-1 bg-blue-100 text-blue-700 border border-blue-300 rounded hover:bg-blue-200 transition text-sm font-semibold">
+            <button type="submit" class="px-4 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
                 Tìm kiếm
             </button>
         </form>
@@ -70,18 +70,18 @@
                     </td>
                     <td class="border px-4 py-2">{{ $order->created_at->format('d/m/Y H:i') }}</td>
                     <td class="border px-4 py-2">
-                        <div class="flex justify-center flex-wrap gap-2">
+                        <div class="flex justify-center flex-wrap gap-2 items-center">
                             <a href="{{ route('admin.orders.show', $order->id) }}" 
-                               class="inline-block px-3 py-1 bg-blue-100 text-blue-700 border border-blue-300 rounded hover:bg-blue-200 transition text-xs font-medium">
-                               👁️ Xem
+                               class="inline-block px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                               Xem
                             </a>
                             <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST" class="inline-block"
                                   onsubmit="return confirm('Bạn chắc chắn muốn xoá đơn này?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="inline-block px-3 py-1 bg-red-100 text-red-700 border border-red-300 rounded hover:bg-red-200 transition text-xs font-medium">
-                                    🗑️ Xoá
+                                    class="inline-block px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                                    Xóa
                                 </button>
                             </form>
                         </div>

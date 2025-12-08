@@ -8,12 +8,140 @@
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <!-- Custom Admin Colors -->
+        <style>
+            /* Override indigo colors with dark gray theme (#374151) */
+            .bg-indigo-600, .bg-indigo-500 { background-color: #374151 !important; }
+            .bg-indigo-50 { background-color: #f3f4f6 !important; }
+            .bg-indigo-100 { background-color: #e5e7eb !important; }
+            .text-indigo-400 { color: #9ca3af !important; }
+            .text-indigo-500, .text-indigo-600 { color: #374151 !important; }
+            .text-indigo-700 { color: #1f2937 !important; }
+            .text-indigo-800 { color: #111827 !important; }
+            .border-indigo-200 { border-color: #d1d5db !important; }
+            .border-indigo-300 { border-color: #9ca3af !important; }
+            .border-indigo-500 { border-color: #374151 !important; }
+            .hover\:text-indigo-600:hover, .hover\:text-indigo-700:hover { color: #1f2937 !important; }
+            .hover\:border-indigo-300:hover { border-color: #9ca3af !important; }
+            .hover\:bg-indigo-200:hover { background-color: #e5e7eb !important; }
+            .focus\:ring-indigo-200:focus, .focus\:ring-indigo-500:focus { --tw-ring-color: rgba(55, 65, 81, 0.5) !important; }
+            
+            /* Override blue colors with dark gray theme */
+            .bg-blue-50 { background-color: #f3f4f6 !important; }
+            .bg-blue-100 { background-color: #e5e7eb !important; }
+            .bg-blue-200 { background-color: #d1d5db !important; }
+            .text-blue-600, .text-blue-700, .text-blue-800 { color: #374151 !important; }
+            .border-blue-300, .border-blue-500 { border-color: #374151 !important; }
+            .hover\:bg-blue-200:hover { background-color: #d1d5db !important; }
+            .hover\:text-blue-800:hover { color: #1f2937 !important; }
+            .focus\:ring-blue-500:focus { --tw-ring-color: rgba(55, 65, 81, 0.5) !important; }
+            
+            /* Body font */
+            body {
+                font-family: 'Roboto', sans-serif;
+            }
+            
+            /* Headings font */
+            h1, h2, h3, h4, h5, h6 {
+                font-family: 'Playfair Display', serif;
+            }
+            
+            /* Fix navigation logo text colors */
+            nav .text-gray-900 {
+                color: #4a4a4a !important;
+            }
+            
+            /* Fix logo display - Only text, no box */
+            .admin-logo-link,
+            nav a[href*="admin.dashboard"],
+            nav a[href*="dashboard"] {
+                display: flex !important;
+                align-items: center !important;
+                text-decoration: none !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            /* Hide/Remove any logo box - Force remove */
+            .admin-logo-box,
+            nav a[href*="admin.dashboard"] > div:first-child:not(.admin-logo-text),
+            nav a[href*="dashboard"] > div:first-child:not(.admin-logo-text),
+            nav a[href*="admin.dashboard"] > div.h-10,
+            nav a[href*="dashboard"] > div.h-10,
+            nav a[href*="admin.dashboard"] > div[style*="374151"],
+            nav a[href*="dashboard"] > div[style*="374151"] {
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+                min-width: 0 !important;
+                min-height: 0 !important;
+                max-width: 0 !important;
+                max-height: 0 !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                position: absolute !important;
+                left: -9999px !important;
+            }
+            
+            /* Ensure no background boxes appear */
+            nav a[href*="admin.dashboard"] > div:not(.admin-logo-text),
+            nav a[href*="dashboard"] > div:not(.admin-logo-text) {
+                background: none !important;
+                background-color: transparent !important;
+            }
+            
+            .admin-logo-text,
+            nav a[href*="admin.dashboard"] > div.admin-logo-text,
+            nav a[href*="dashboard"] > div.admin-logo-text {
+                flex: 1 1 auto !important;
+                min-width: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 2px !important;
+                overflow: hidden !important;
+                box-sizing: border-box !important;
+            }
+            
+            .admin-logo-subtitle,
+            nav a[href*="admin.dashboard"] .admin-logo-subtitle,
+            nav a[href*="dashboard"] .admin-logo-subtitle {
+                color: #9ca3af !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                line-height: 1.2 !important;
+                font-size: 10px !important;
+                font-weight: 400 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.3em !important;
+                font-family: 'Roboto', sans-serif !important;
+                white-space: nowrap !important;
+                display: block !important;
+            }
+            
+            .admin-logo-title,
+            nav a[href*="admin.dashboard"] .admin-logo-title,
+            nav a[href*="dashboard"] .admin-logo-title {
+                color: #1f2937 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                font-family: 'Playfair Display', 'Georgia', serif !important;
+                font-size: 1.125rem !important;
+                font-weight: 600 !important;
+                line-height: 1.3 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                display: block !important;
+            }
+        </style>
+        
         @stack('styles')
     </head>
     <body class="font-sans antialiased bg-gray-100 overflow-x-hidden">
@@ -48,7 +176,10 @@
                                 @endphp
 
                                 <button id="notification-button" type="button"
-                                    class="relative inline-flex items-center justify-center h-11 w-11 rounded-full border border-gray-200 bg-white text-gray-500 hover:text-indigo-600 hover:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                    class="relative inline-flex items-center justify-center h-11 w-11 rounded-full border border-gray-200 bg-white text-gray-500 focus:outline-none focus:ring-2"
+                                    style="--hover-color: #374151; --hover-border: #9ca3af; --focus-ring: rgba(55, 65, 81, 0.2);"
+                                    onmouseover="this.style.color='#374151'; this.style.borderColor='#9ca3af';"
+                                    onmouseout="this.style.color='#6b7280'; this.style.borderColor='#e5e7eb';">
                                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                               d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 11-6 0m6 0H9" />
@@ -62,7 +193,10 @@
                                      style="width: 360px; left: 50%; transform: translateX(-50%);">
                                     <div class="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between">
                                         <p class="text-sm font-semibold text-gray-800">Thông báo</p>
-                                        <button id="mark-all-read" type="button" class="text-xs text-indigo-500 hover:text-indigo-700">
+                                        <button id="mark-all-read" type="button" class="text-xs" 
+                                                style="color: #374151;"
+                                                onmouseover="this.style.color='#1f2937';"
+                                                onmouseout="this.style.color='#374151';">
                                             Đánh dấu đã đọc
                                         </button>
                                     </div>
@@ -92,7 +226,7 @@
                                                     <p class="text-[11px] text-gray-400 mt-1">
                                                         {{ $notification->created_at->diffForHumans() }}
                                                         @unless($notification->is_read)
-                                                            · <span class="text-indigo-500 font-medium">Chưa đọc</span>
+                                                            · <span class="font-medium" style="color: #374151;">Chưa đọc</span>
                                                         @endunless
                                                     </p>
                                                 </div>
@@ -107,7 +241,10 @@
                             </div>
 
                             <button id="user-menu-button" type="button"
-                                class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:border-indigo-300 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2"
+                                style="--hover-color: #374151; --hover-border: #9ca3af; --focus-ring: rgba(55, 65, 81, 0.2);"
+                                onmouseover="this.style.color='#374151'; this.style.borderColor='#9ca3af';"
+                                onmouseout="this.style.color='#374151'; this.style.borderColor='#e5e7eb';">
                                 <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A8 8 0 1118.879 6.196 8 8 0 015.12 17.804z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -202,7 +339,7 @@
                             if (notiDot) {
                                 notiDot.style.display = 'none';
                             }
-                            const badges = document.querySelectorAll('#notification-list span.text-indigo-500.font-medium');
+                            const badges = document.querySelectorAll('#notification-list span.font-medium[style*="color: #374151"]');
                             badges.forEach((badge) => badge.classList.add('hidden'));
                         }).catch(() => {
                             // Silent fail, không cần báo lỗi cho người dùng trong trường hợp này

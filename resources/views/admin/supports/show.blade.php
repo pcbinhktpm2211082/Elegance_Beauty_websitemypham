@@ -24,10 +24,10 @@
     @endif
 
     <!-- Nút quay lại -->
-    <div class="mb-6 text-left">
+    <div class="mb-4 text-left">
         <a href="{{ route('admin.supports.index') }}" 
            class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
-            ← Quay lại danh sách
+            Quay lại danh sách
         </a>
     </div>
 
@@ -84,8 +84,8 @@
             @if($support->status == 'pending')
                 <form method="POST" action="{{ route('admin.supports.processing', $support) }}">
                     @csrf
-                        <button type="submit" class="w-full px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded hover:bg-amber-100 transition text-sm font-medium">
-                        ⏳ Đánh dấu đang xử lý
+                        <button type="submit" class="w-full px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-medium">
+                        Đánh dấu đang xử lý
                     </button>
                 </form>
             @endif
@@ -93,15 +93,15 @@
             @if($support->status == 'pending' || $support->status == 'processing')
                 <form method="POST" action="{{ route('admin.supports.done', $support) }}">
                     @csrf
-                        <button type="submit" class="w-full px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-100 transition text-sm font-medium">
-                        ✅ Đánh dấu hoàn thành
+                        <button type="submit" class="w-full px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-medium">
+                        Đánh dấu hoàn thành
                     </button>
                 </form>
                 
                 <form method="POST" action="{{ route('admin.supports.cancelled', $support) }}">
                     @csrf
-                        <button type="submit" class="w-full px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded hover:bg-red-100 transition text-sm font-medium">
-                            ❌ Hủy cuộc trò chuyện
+                        <button type="submit" class="w-full px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-medium">
+                            Hủy cuộc trò chuyện
                     </button>
                 </form>
             @endif

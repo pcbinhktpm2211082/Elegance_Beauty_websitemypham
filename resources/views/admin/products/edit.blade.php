@@ -142,8 +142,8 @@
                     <div class="flex justify-between items-center mb-2">
                         <label class="block text-sm font-medium text-gray-700">Danh mục:</label>
                         <button type="button" onclick="openCategoryModal()" 
-                                class="text-xs text-blue-600 hover:text-blue-800 underline">
-                            ⚙️ Quản lý danh mục
+                                class="text-xs text-gray-600 hover:text-gray-800 underline">
+                            Quản lý danh mục
                         </button>
                     </div>
                     <select id="category_id" name="category_id" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
@@ -179,8 +179,8 @@
                 <div class="flex justify-between items-center mb-3">
                     <h4 class="text-sm font-medium text-gray-900">Phân loại sản phẩm:</h4>
                     <button type="button" onclick="openClassificationModal()" 
-                            class="text-xs text-blue-600 hover:text-blue-800 underline">
-                        ⚙️ Quản lý nhãn phân loại
+                            class="text-xs text-gray-600 hover:text-gray-800 underline">
+                        Quản lý nhãn phân loại
                     </button>
                 </div>
                 
@@ -366,9 +366,9 @@
                                 class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4">
                             <span class="ml-2 text-sm font-semibold text-gray-800">
                                 @if(old("variants.$index.is_active", isset($variant['is_active']) && $variant['is_active'] !== null ? (bool)$variant['is_active'] : true))
-                                    ✅ Biến thể đang hoạt động
+                                    Biến thể đang hoạt động
                                 @else
-                                    ❌ Biến thể đã vô hiệu hóa
+                                    Biến thể đã vô hiệu hóa
                                 @endif
                             </span>
                             <span class="ml-2 text-xs text-gray-500">(Bỏ chọn để vô hiệu hóa biến thể này)</span>
@@ -377,8 +377,8 @@
                         <form action="{{ route('admin.products.variants.toggle-status', [$product->id, $variant['id']]) }}" method="POST" class="ml-4">
                             @csrf
                             <button type="submit" 
-                                    class="text-xs px-3 py-1 {{ (old("variants.$index.is_active", isset($variant['is_active']) && $variant['is_active'] !== null ? (bool)$variant['is_active'] : true)) ? 'bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200' : 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200' }} border rounded transition">
-                                    {{ (old("variants.$index.is_active", isset($variant['is_active']) && $variant['is_active'] !== null ? (bool)$variant['is_active'] : true)) ? '🚫 Vô hiệu hóa ngay' : '✅ Kích hoạt ngay' }}
+                                    class="text-xs px-3 py-1 bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 border rounded transition">
+                                    {{ (old("variants.$index.is_active", isset($variant['is_active']) && $variant['is_active'] !== null ? (bool)$variant['is_active'] : true)) ? 'Vô hiệu hóa ngay' : 'Kích hoạt ngay' }}
                             </button>
                         </form>
                         @endif
@@ -401,26 +401,26 @@
                     @endif
                     
                     <div class="mt-3 text-right">
-                        <button type="button" class="remove-variant-btn bg-red-100 text-red-700 border border-red-300 px-3 py-1 rounded hover:bg-red-200 transition text-sm font-medium">
-                            ❌ Xóa biến thể
+                        <button type="button" class="remove-variant-btn bg-gray-100 text-gray-700 border border-gray-300 px-3 py-1 rounded hover:bg-gray-200 transition text-sm font-medium">
+                            Xóa biến thể
                         </button>
                     </div>
                 </div>
                 @endforeach
             </div>
             
-            <button type="button" id="add-variant-btn" class="inline-block px-4 py-2 bg-green-100 text-green-700 border border-green-300 rounded hover:bg-green-200 transition text-sm font-medium">
-                ➕ Thêm biến thể
+            <button type="button" id="add-variant-btn" class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-medium">
+                + Thêm biến thể
             </button>
         </div>
 
         <!-- Nút lưu -->
         <div class="flex justify-between items-center">
             <a href="{{ route('admin.products.index') }}" class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
-                ← Quay lại danh sách
+                Quay lại danh sách
             </a>
-            <button type="submit" class="inline-block px-4 py-2 bg-green-100 text-green-700 border border-green-300 rounded hover:bg-green-200 transition text-sm font-semibold">
-                💾 Lưu thay đổi
+            <button type="submit" class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
+                Lưu thay đổi
             </button>
         </div>
     </form>
@@ -465,13 +465,13 @@
                     <label class="inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="variants[${index}][is_active]" value="1" checked
                             class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4">
-                        <span class="ml-2 text-sm font-semibold text-gray-800">✅ Biến thể đang hoạt động</span>
+                        <span class="ml-2 text-sm font-semibold text-gray-800">Biến thể đang hoạt động</span>
                         <span class="ml-2 text-xs text-gray-500">(Bỏ chọn để vô hiệu hóa biến thể này)</span>
                     </label>
                 </div>
                 <div class="mt-3 text-right">
-                    <button type="button" class="remove-variant-btn bg-red-100 text-red-700 border border-red-300 px-3 py-1 rounded hover:bg-red-200 transition text-sm font-medium">
-                        ❌ Xóa biến thể
+                    <button type="button" class="remove-variant-btn bg-gray-100 text-gray-700 border border-gray-300 px-3 py-1 rounded hover:bg-gray-200 transition text-sm font-medium">
+                        Xóa biến thể
                     </button>
                 </div>
             `;

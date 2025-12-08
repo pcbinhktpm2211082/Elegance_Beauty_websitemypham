@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto py-6">
-    <h1 class="text-2xl font-bold text-center mb-8 text-gray-800">📊 Admin Dashboard</h1>
+    <h1 class="text-2xl font-bold text-center mb-8 text-gray-800">Admin Dashboard</h1>
 
     <!-- Thống kê tổng quan -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -13,7 +13,7 @@
                     <p class="text-blue-600 text-sm font-medium">Tổng doanh thu</p>
                     <p class="text-2xl font-bold text-blue-800">{{ number_format($totalRevenue, 0, ',', '.') }} ₫</p>
                 </div>
-                <div class="text-3xl text-blue-500">💰</div>
+                <div class="text-3xl text-gray-500"></div>
             </div>
         </div>
 
@@ -24,7 +24,7 @@
                     <p class="text-green-600 text-sm font-medium">Tổng đơn hàng</p>
                     <p class="text-2xl font-bold text-green-800">{{ $totalOrders }}</p>
                 </div>
-                <div class="text-3xl text-green-500">📦</div>
+                <div class="text-3xl text-gray-500"></div>
             </div>
         </div>
 
@@ -35,7 +35,7 @@
                     <p class="text-purple-600 text-sm font-medium">Đơn thành công</p>
                     <p class="text-2xl font-bold text-purple-800">{{ $completedOrders }}</p>
                 </div>
-                <div class="text-3xl text-purple-500">✅</div>
+                <div class="text-3xl text-gray-500"></div>
             </div>
         </div>
 
@@ -46,7 +46,7 @@
                     <p class="text-orange-600 text-sm font-medium">Tổng sản phẩm</p>
                     <p class="text-2xl font-bold text-orange-800">{{ $totalProducts }}</p>
                 </div>
-                <div class="text-3xl text-orange-500">🛍️</div>
+                <div class="text-3xl text-gray-500"></div>
             </div>
         </div>
     </div>
@@ -54,7 +54,7 @@
     <!-- Biểu đồ doanh thu theo tháng -->
     <div class="mb-8">
         <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-xl font-semibold mb-4 text-gray-800">📈 Doanh thu theo tháng ({{ $year }})</h2>
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Doanh thu theo tháng ({{ $year }})</h2>
             <div class="h-80">
                 <canvas id="revenueChart"></canvas>
             </div>
@@ -64,7 +64,7 @@
     <!-- Top sản phẩm bán chạy -->
     <div class="bg-white p-6 rounded-lg shadow-lg">
         <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-semibold text-gray-800">🔥 Top sản phẩm bán chạy</h2>
+            <h2 class="text-xl font-semibold text-gray-800">Top sản phẩm bán chạy</h2>
             <div class="text-sm text-gray-500">Cập nhật lần cuối: {{ now()->format('d/m/Y H:i') }}</div>
         </div>
         
@@ -123,7 +123,7 @@
                     <tr>
                         <td colspan="5" class="px-4 py-12 text-center">
                             <div class="flex flex-col items-center">
-                                <div class="text-6xl mb-4">📦</div>
+                                <div class="text-6xl mb-4"></div>
                                 <h3 class="text-lg font-medium text-gray-500 mb-2">Chưa có dữ liệu</h3>
                                 <p class="text-sm text-gray-400">Sản phẩm sẽ xuất hiện ở đây khi có đơn hàng</p>
                             </div>

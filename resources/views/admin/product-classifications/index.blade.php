@@ -9,11 +9,11 @@
     <div class="mb-4 text-left flex gap-2">
         <button onclick="openAddModal()" 
                 class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
-            ➕ Thêm nhãn phân loại
+            + Thêm nhãn phân loại
         </button>
         <button onclick="openAddProductTypeModal()" 
                 class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
-            ➕ Thêm loại sản phẩm
+            + Thêm loại sản phẩm
         </button>
     </div>
 
@@ -38,17 +38,17 @@
                         <td class="border px-4 py-2">{{ $classification->name }}</td>
                         <td class="border px-4 py-2 text-center">{{ $classification->products()->count() }}</td>
                         <td class="border px-4 py-2">
-                            <div class="flex justify-center gap-2">
+                            <div class="flex justify-center gap-2 items-center">
                                 <button onclick="openEditModal({{ $classification->id }}, '{{ $classification->name }}', '{{ $classification->type }}')" 
-                                        class="px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded hover:bg-yellow-200 transition text-xs font-medium">
-                                    ✏️ Sửa
+                                        class="px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                                    Sửa
                                 </button>
                                 <form method="POST" action="{{ route('admin.product-classifications.destroy', $classification->id) }}" 
                                       onsubmit="return confirm('Bạn có chắc muốn xoá?')" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 border border-red-300 rounded hover:bg-red-200 transition text-xs font-medium">
-                                        🗑️ Xoá
+                                    <button type="submit" class="px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                                        Xóa
                                     </button>
                                 </form>
                             </div>
@@ -82,17 +82,17 @@
                         <td class="border px-4 py-2">{{ $classification->name }}</td>
                         <td class="border px-4 py-2 text-center">{{ $classification->products()->count() }}</td>
                         <td class="border px-4 py-2">
-                            <div class="flex justify-center gap-2">
+                            <div class="flex justify-center gap-2 items-center">
                                 <button onclick="openEditModal({{ $classification->id }}, '{{ $classification->name }}', '{{ $classification->type }}')" 
-                                        class="px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded hover:bg-yellow-200 transition text-xs font-medium">
-                                    ✏️ Sửa
+                                        class="px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                                    Sửa
                                 </button>
                                 <form method="POST" action="{{ route('admin.product-classifications.destroy', $classification->id) }}" 
                                       onsubmit="return confirm('Bạn có chắc muốn xoá?')" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 border border-red-300 rounded hover:bg-red-200 transition text-xs font-medium">
-                                        🗑️ Xoá
+                                    <button type="submit" class="px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                                        Xóa
                                     </button>
                                 </form>
                             </div>
@@ -127,26 +127,26 @@
                         <td class="border px-4 py-2">{{ $productType->name }}</td>
                         <td class="border px-4 py-2 text-center">
                             @if($productType->requires_skin_type_filter)
-                                <span class="text-green-600 font-semibold">✓ Có</span>
+                                <span class="text-green-600 font-semibold">Có</span>
                             @else
-                                <span class="text-red-600 font-semibold">✗ Không</span>
+                                <span class="text-red-600 font-semibold">Không</span>
                             @endif
                         </td>
                         <td class="border px-4 py-2 text-center">
                             {{ \App\Models\Product::where('product_type', $productType->name)->count() }}
                         </td>
                         <td class="border px-4 py-2">
-                            <div class="flex justify-center gap-2">
+                            <div class="flex justify-center gap-2 items-center">
                                 <button onclick="openEditProductTypeModal({{ $productType->id }}, '{{ $productType->name }}', {{ $productType->requires_skin_type_filter ? 'true' : 'false' }})" 
-                                        class="px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded hover:bg-yellow-200 transition text-xs font-medium">
-                                    ✏️ Sửa
+                                        class="px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                                    Sửa
                                 </button>
                                 <form method="POST" action="{{ route('admin.product-classifications.destroy-product-type', $productType->id) }}" 
                                       onsubmit="return confirm('Bạn có chắc muốn xoá?')" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 border border-red-300 rounded hover:bg-red-200 transition text-xs font-medium">
-                                        🗑️ Xoá
+                                    <button type="submit" class="px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                                        Xóa
                                     </button>
                                 </form>
                             </div>

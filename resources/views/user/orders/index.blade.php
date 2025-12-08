@@ -2,6 +2,77 @@
 
 @section('title', 'Đơn hàng của tôi')
 
+@push('styles')
+<style>
+    /* Giảm khoảng cách để trang không quá dài */
+    .orders-list {
+        gap: 15px !important;
+    }
+    
+    .order-card {
+        padding: 18px 20px !important;
+    }
+    
+    .order-header {
+        margin-bottom: 15px !important;
+        padding-bottom: 12px !important;
+    }
+    
+    .order-summary {
+        gap: 20px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .order-items h4 {
+        margin: 0 0 10px 0 !important;
+        font-size: 0.95rem !important;
+    }
+    
+    .items-preview {
+        gap: 8px !important;
+    }
+    
+    .item-preview {
+        padding: 8px !important;
+        gap: 10px !important;
+    }
+    
+    .item-image {
+        width: 45px !important;
+        height: 45px !important;
+    }
+    
+    .item-info {
+        font-size: 0.9rem !important;
+    }
+    
+    .item-name {
+        margin: 0 0 4px 0 !important;
+        font-size: 0.9rem !important;
+        line-height: 1.3 !important;
+    }
+    
+    .item-quantity {
+        margin: 0 !important;
+        font-size: 0.85rem !important;
+    }
+    
+    .order-total {
+        gap: 8px !important;
+    }
+    
+    .total-item {
+        margin-bottom: 6px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .order-actions {
+        gap: 10px !important;
+        margin-top: 12px !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="profile-page">
     <div class="profile-header">
@@ -62,9 +133,11 @@
                             <div class="order-summary">
                                 <div class="order-items">
                                     <h4>Sản phẩm:</h4>
-                                    <div class="items-preview">
-                                        @foreach($order->orderItems->take(3) as $item)
-                                            <div class="item-preview">
+                                    <div class="items-preview" id="items-preview-{{ $order->id }}">
+                                        @foreach($order->orderItems as $index => $item)
+                                            <div class="item-preview {{ $index >= 3 ? 'item-hidden' : '' }}" 
+                                                 data-order-id="{{ $order->id }}"
+                                                 style="{{ $index >= 3 ? 'display: none;' : '' }}">
                                                 @php
                                                     $product = $item->product;
                                                     $cover = $product ? $product->coverOrFirstImage : null;
@@ -85,8 +158,13 @@
                                             </div>
                                         @endforeach
                                         @if($order->orderItems->count() > 3)
-                                            <div class="more-items">
-                                                <span>+{{ $order->orderItems->count() - 3 }} sản phẩm khác</span>
+                                            <div class="more-items" 
+                                                 id="more-items-{{ $order->id }}"
+                                                 onclick="toggleOrderItems({{ $order->id }}, {{ $order->orderItems->count() }})"
+                                                 style="cursor: pointer; padding: 8px 12px; text-align: center; background: #8b5d33; border-radius: 8px; margin-top: 6px; transition: all 0.2s;"
+                                                 onmouseover="this.style.background='#6a4625'; this.style.transform='translateY(-1px)'"
+                                                 onmouseout="this.style.background='#8b5d33'; this.style.transform='translateY(0)'">
+                                                <span style="color: #ffffff; font-weight: 500; font-size: 0.9rem;">+{{ $order->orderItems->count() - 3 }} sản phẩm khác</span>
                                             </div>
                                         @endif
                                     </div>
@@ -177,6 +255,38 @@
 </div>
 
 <script>
+function toggleOrderItems(orderId, totalItems) {
+    const previewContainer = document.getElementById('items-preview-' + orderId);
+    const moreItemsBtn = document.getElementById('more-items-' + orderId);
+    
+    if (!previewContainer || !moreItemsBtn) return;
+    
+    // Lấy tất cả các item preview của order này
+    const allItems = previewContainer.querySelectorAll('.item-preview[data-order-id="' + orderId + '"]');
+    const hiddenItems = Array.from(allItems).slice(3); // Từ item thứ 4 trở đi
+    
+    if (hiddenItems.length === 0) return;
+    
+    // Kiểm tra xem đang ẩn hay hiện (kiểm tra item đầu tiên trong hiddenItems)
+    const isCurrentlyHidden = hiddenItems[0].style.display === 'none' || hiddenItems[0].classList.contains('item-hidden');
+    
+        if (isCurrentlyHidden) {
+        // Hiển thị tất cả sản phẩm
+        hiddenItems.forEach(item => {
+            item.style.display = 'flex';
+            item.classList.remove('item-hidden');
+        });
+        moreItemsBtn.innerHTML = '<span style="color: #ffffff; font-weight: 500; font-size: 0.9rem;">Ẩn bớt sản phẩm</span>';
+    } else {
+        // Ẩn các sản phẩm từ thứ 4 trở đi
+        hiddenItems.forEach(item => {
+            item.style.display = 'none';
+            item.classList.add('item-hidden');
+        });
+        moreItemsBtn.innerHTML = '<span style="color: #ffffff; font-weight: 500; font-size: 0.9rem;">+' + (totalItems - 3) + ' sản phẩm khác</span>';
+    }
+}
+
 function cancelOrder(orderId) {
     if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
         fetch(`/orders/${orderId}/cancel`, {

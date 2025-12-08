@@ -11,13 +11,13 @@
             <input type="text" name="search" placeholder="Tìm mã hoặc mô tả voucher..." value="{{ request('search') }}" 
                    class="border border-gray-300 rounded px-3 py-1 flex-grow text-sm">
 
-            <button type="submit" class="px-4 py-1 bg-blue-100 text-blue-700 border border-blue-300 rounded hover:bg-blue-200 transition text-sm font-semibold">
+            <button type="submit" class="px-4 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
                 Tìm kiếm
             </button>
             
             @if(request('search'))
                 <a href="{{ route('admin.vouchers.index') }}" class="px-4 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
-                    🔄 Làm mới
+                    Làm mới
                 </a>
             @endif
         </form>
@@ -73,16 +73,16 @@
                         {!! $statusHtml !!}
                     </td>
                     <td class="border px-4 py-2">
-                        <div class="flex justify-center flex-wrap gap-2">
+                        <div class="flex justify-center flex-wrap gap-2 items-center">
                             <a href="{{ route('admin.vouchers.edit', $voucher) }}" 
-                               class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded hover:bg-yellow-200 transition text-xs font-medium">
-                               ✏️ Sửa
+                               class="inline-block px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                               Sửa
                             </a>
                             <form method="POST" action="{{ route('admin.vouchers.destroy', $voucher) }}" onsubmit="return confirm('Xoá voucher?')" class="inline-block">
                                 @csrf
                                 @method('DELETE')
-                                <button class="inline-block px-3 py-1 bg-red-100 text-red-700 border border-red-300 rounded hover:bg-red-200 transition text-xs font-medium">
-                                    🗑️ Xoá
+                                <button class="inline-block px-3 py-1 min-h-[28px] bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-xs font-medium whitespace-nowrap">
+                                    Xóa
                                 </button>
                             </form>
                         </div>

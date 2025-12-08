@@ -9,18 +9,18 @@
     </div>
 
     <!-- Nút quay lại -->
-    <div class="mb-6 text-left">
+    <div class="mb-4 text-left">
         <a href="{{ route('admin.orders.index', request()->only(['status', 'search'])) }}"
            class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
-            ← Quay lại danh sách
+            Quay lại danh sách
         </a>
     </div>
 
     <!-- Thông tin khách hàng -->
-    <div class="bg-white p-4 rounded shadow border mb-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4 border-b border-gray-200 pb-2">Thông tin khách hàng</h3>
+    <div class="bg-white p-4 rounded shadow border mb-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-3 border-b border-gray-200 pb-2">Thông tin khách hàng</h3>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
                 <label class="block text-sm font-medium text-gray-500 mb-1">Họ và tên</label>
                 <p class="text-sm text-gray-900 bg-gray-50 p-2 rounded border">{{ $order->customer_name }}</p>
@@ -49,28 +49,28 @@
     </div>
 
     <!-- Sản phẩm trong đơn -->
-    <div class="bg-white p-4 rounded shadow border mb-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4 border-b border-gray-200 pb-2">Sản phẩm trong đơn</h3>
+    <div class="bg-white p-4 rounded shadow border mb-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-3 border-b border-gray-200 pb-2">Sản phẩm trong đơn</h3>
         
         <div class="overflow-x-auto">
             <table class="w-full table-auto border-collapse border border-gray-300 text-sm">
                 <thead class="bg-gray-100">
                     <tr>
-                        <th class="border px-4 py-2 text-left">Sản phẩm</th>
-                        <th class="border px-4 py-2 text-left">Biến thể</th>
-                        <th class="border px-4 py-2 text-center">Số lượng</th>
-                        <th class="border px-4 py-2 text-right">Đơn giá</th>
-                        <th class="border px-4 py-2 text-right">Thành tiền</th>
+                        <th class="border px-3 py-2 text-left">Sản phẩm</th>
+                        <th class="border px-3 py-2 text-left">Biến thể</th>
+                        <th class="border px-3 py-2 text-center">Số lượng</th>
+                        <th class="border px-3 py-2 text-right">Đơn giá</th>
+                        <th class="border px-3 py-2 text-right">Thành tiền</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($order->items as $item)
                     <tr class="hover:bg-gray-50">
-                        <td class="border px-4 py-2">{{ $item->product_name }}</td>
-                        <td class="border px-4 py-2">{{ $item->variant_name ?? '-' }}</td>
-                        <td class="border px-4 py-2 text-center">{{ $item->quantity }}</td>
-                        <td class="border px-4 py-2 text-right font-mono">{{ number_format($item->unit_price, 0, ',', '.') }}₫</td>
-                        <td class="border px-4 py-2 text-right font-mono">{{ number_format($item->total_price, 0, ',', '.') }}₫</td>
+                        <td class="border px-3 py-2">{{ $item->product_name }}</td>
+                        <td class="border px-3 py-2">{{ $item->variant_name ?? '-' }}</td>
+                        <td class="border px-3 py-2 text-center">{{ $item->quantity }}</td>
+                        <td class="border px-3 py-2 text-right font-mono">{{ number_format($item->unit_price, 0, ',', '.') }}₫</td>
+                        <td class="border px-3 py-2 text-right font-mono">{{ number_format($item->total_price, 0, ',', '.') }}₫</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -82,7 +82,7 @@
             $shipping = max(0, (float)$order->total_price + (float)($order->discount_amount ?? 0) - (float)$subtotal);
         @endphp
         
-        <div class="mt-6 bg-gray-50 p-4 rounded border">
+        <div class="mt-4 bg-gray-50 p-3 rounded border">
             <div class="space-y-2 text-right">
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-gray-600">Tạm tính:</span>
@@ -109,7 +109,7 @@
                 <div class="border-t border-gray-300 pt-2">
                     <div class="flex justify-between items-center">
                         <span class="text-lg font-semibold text-gray-900">Thành tiền:</span>
-                        <span class="text-xl font-bold text-blue-600">{{ number_format($order->total_price, 0, ',', '.') }}₫</span>
+                        <span class="text-xl font-bold text-gray-900">{{ number_format($order->total_price, 0, ',', '.') }}₫</span>
                     </div>
                 </div>
             </div>
@@ -117,8 +117,8 @@
     </div>
 
     <!-- Cập nhật trạng thái -->
-    <div class="bg-white p-4 rounded shadow border mb-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4 border-b border-gray-200 pb-2">Cập nhật trạng thái đơn hàng</h3>
+    <div class="bg-white p-4 rounded shadow border mb-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-3 border-b border-gray-200 pb-2">Cập nhật trạng thái đơn hàng</h3>
         
         <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST">
             @csrf
@@ -129,10 +129,10 @@
             @if(request('search'))
                 <input type="hidden" name="search" value="{{ request('search') }}">
             @endif
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                     <label class="block text-sm font-medium text-gray-500 mb-2">Trạng thái mới</label>
-                    <select name="status" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="status" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400">
                         <option value="pending" {{ $order->status=='pending' ? 'selected' : '' }}>Chờ xử lý</option>
                         <option value="processing" {{ $order->status=='processing' ? 'selected' : '' }}>Đang xử lý</option>
                         <option value="shipped" {{ $order->status=='shipped' ? 'selected' : '' }}>Đang giao hàng</option>
@@ -144,13 +144,13 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-500 mb-2">Ghi chú trạng thái</label>
                     <textarea name="note" placeholder="Ghi chú trạng thái (tuỳ chọn)" rows="3" 
-                              class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ $order->note }}</textarea>
+                              class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400">{{ $order->note }}</textarea>
                 </div>
             </div>
             
-            <div class="mt-4">
-                <button type="submit" class="inline-block px-4 py-2 bg-blue-100 text-blue-700 border border-blue-300 rounded hover:bg-blue-200 transition text-sm font-medium">
-                    🔄 Cập nhật trạng thái
+            <div class="mt-3">
+                <button type="submit" class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-medium">
+                    Cập nhật trạng thái
                 </button>
             </div>
         </form>
@@ -158,9 +158,9 @@
 
     <!-- Thông tin bổ sung -->
     <div class="bg-white p-4 rounded shadow border">
-        <h3 class="text-lg font-medium text-gray-900 mb-4 border-b border-gray-200 pb-2">Thông tin bổ sung</h3>
+        <h3 class="text-lg font-medium text-gray-900 mb-3 border-b border-gray-200 pb-2">Thông tin bổ sung</h3>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
                 <label class="block text-sm font-medium text-gray-500 mb-1">Trạng thái hiện tại</label>
                 <div class="mt-1">

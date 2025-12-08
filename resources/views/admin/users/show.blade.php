@@ -9,10 +9,10 @@
     </div>
 
     <!-- Nút quay lại -->
-    <div class="mb-6 text-left">
+    <div class="mb-4 text-left">
         <a href="{{ route('admin.users.index') }}"
            class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-semibold">
-            ← Quay lại danh sách
+            Quay lại danh sách
         </a>
     </div>
 
@@ -123,8 +123,8 @@
         
         <div class="flex flex-wrap gap-3">
             <a href="{{ route('admin.users.edit', $user->id) }}"
-               class="inline-block px-4 py-2 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded hover:bg-yellow-200 transition text-sm font-medium">
-                ✏️ Sửa thông tin
+               class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-medium">
+                Sửa thông tin
             </a>
             
             @if($user->status)
@@ -133,8 +133,8 @@
                     @csrf
                     @method('DELETE')
                     <button type="submit"
-                            class="inline-block px-4 py-2 bg-red-100 text-red-700 border border-red-300 rounded hover:bg-red-200 transition text-sm font-medium">
-                        🔒 Khoá người dùng
+                            class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-medium">
+                        Khóa người dùng
                     </button>
                 </form>
             @else
@@ -143,8 +143,8 @@
                     @method('PUT')
                     <input type="hidden" name="status" value="1">
                     <button type="submit"
-                            class="inline-block px-4 py-2 bg-green-100 text-green-700 border border-green-300 rounded hover:bg-green-200 transition text-sm font-medium">
-                        🔓 Mở khoá
+                            class="inline-block px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200 transition text-sm font-medium">
+                        Mở khóa
                     </button>
                 </form>
             @endif

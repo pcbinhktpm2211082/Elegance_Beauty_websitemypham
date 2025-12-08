@@ -201,8 +201,8 @@
                         <form action="{{ route('admin.products.variants.toggle-status', [$product->id, $variant->id]) }}" method="POST" class="inline">
                             @csrf
                             <button type="submit" 
-                                    class="text-xs px-2 py-1 {{ $variant->is_active ? 'bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200' : 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200' }} border rounded transition">
-                                    {{ $variant->is_active ? '🚫 Vô hiệu hóa' : '✅ Kích hoạt' }}
+                                    class="text-xs px-2 py-1 bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200 border rounded transition">
+                                    {{ $variant->is_active ? 'Vô hiệu hóa' : 'Kích hoạt' }}
                             </button>
                         </form>
                     </div>
