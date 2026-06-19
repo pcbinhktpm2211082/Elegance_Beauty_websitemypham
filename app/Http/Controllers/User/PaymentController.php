@@ -478,26 +478,22 @@ class PaymentController extends Controller
             'vnp_TxnRef' => $vnp_TxnRef,
         ];
 
-        // Sắp xếp dữ liệu theo thứ tự alphabet
+        // Sắp xếp và build query/hash string chuẩn (theo tài liệu VNPAY)
         ksort($inputData);
-        $query = '';
-        $i = 0;
-        $hashdata = '';
+        // Query để redirect (đúng URL-encode)
+        $query = http_build_query($inputData, '', '&');
+        // Hash-data: không encode, ghép key=value theo thứ tự
+        $hashPieces = [];
         foreach ($inputData as $key => $value) {
-            if ($i == 1) {
-                $hashdata .= '&' . urlencode($key) . '=' . urlencode($value);
-            } else {
-                $hashdata .= urlencode($key) . '=' . urlencode($value);
-                $i = 1;
-            }
-            $query .= urlencode($key) . '=' . urlencode($value) . '&';
+            $hashPieces[] = $key . '=' . $value;
         }
+        $hashdata = implode('&', $hashPieces);
 
-        $vnp_Url = $vnp_Url . '?' . $query;
-        if (isset($vnp_HashSecret)) {
-            $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
-            $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
-        }
+        // Tính chữ ký với sha256
+        $vnpSecureHash = strtoupper(hash_hmac('sha256', $hashdata, $vnp_HashSecret));
+
+        // Ghép URL (kèm SecureHashType)
+        $vnp_Url = $vnp_Url . '?' . $query . '&vnp_SecureHashType=SHA256&vnp_SecureHash=' . $vnpSecureHash;
 
         Log::info('VNPAY payment URL created', ['order_id' => $order->id, 'url' => $vnp_Url]);
 
@@ -516,7 +512,7 @@ class PaymentController extends Controller
         }
 
         $vnp_HashSecret = $config['hash_secret'];
-        $vnp_SecureHash = $request->input('vnp_SecureHash');
+        $vnp_SecureHash = strtoupper((string)$request->input('vnp_SecureHash', ''));
         $inputData = [];
 
         foreach ($request->all() as $key => $value) {
@@ -525,22 +521,22 @@ class PaymentController extends Controller
             }
         }
 
+        // Loại bỏ chữ ký và loại hash
         unset($inputData['vnp_SecureHash']);
+        unset($inputData['vnp_SecureHashType']);
         ksort($inputData);
-        $i = 0;
-        $hashData = '';
+
+        // Build chuỗi hash chuẩn (không encode)
+        $hashPieces = [];
         foreach ($inputData as $key => $value) {
-            if ($i == 1) {
-                $hashData = $hashData . '&' . urlencode($key) . '=' . urlencode($value);
-            } else {
-                $hashData = $hashData . urlencode($key) . '=' . urlencode($value);
-                $i = 1;
-            }
+            $hashPieces[] = $key . '=' . $value;
         }
+        $hashData = implode('&', $hashPieces);
 
-        $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+        // Tính chữ ký với sha256
+        $secureHash = strtoupper(hash_hmac('sha256', $hashData, $vnp_HashSecret));
 
-        if ($secureHash != $vnp_SecureHash) {
+        if ($secureHash !== $vnp_SecureHash) {
             Log::error('VNPAY return: Invalid secure hash', ['received' => $vnp_SecureHash, 'calculated' => $secureHash]);
             return redirect()->route('payment.checkout')
                 ->with('error', 'Chữ ký không hợp lệ. Vui lòng liên hệ hỗ trợ.');

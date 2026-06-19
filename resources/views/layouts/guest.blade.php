@@ -15,7 +15,7 @@
         <!-- CSS -->
         <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
@@ -241,9 +241,9 @@
                 <div class="auth-logo">
                     <a href="{{ url('/') }}" style="text-decoration: none; color: inherit;">
                         <h1>Elegance Beauty</h1>
-                    </a>
+                </a>
                     <p id="auth-subtitle">Chào mừng bạn trở lại</p>
-                </div>
+            </div>
                 <script>
                     // Set subtitle based on current route
                     document.addEventListener('DOMContentLoaded', function() {

@@ -42,7 +42,7 @@
                    style="color: #1f2937 !important; margin: 0 !important; padding: 0 !important; font-family: 'Playfair Display', 'Georgia', serif !important; font-size: 1.125rem !important; font-weight: 600 !important; line-height: 1.3 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;">Beauty Admin</p>
             </div>
         </a>
-    </div>
+                    </div>
 
     <div class="flex-1 overflow-y-auto px-5 py-7">
         <div class="flex flex-col" style="gap: 1.5rem;">
